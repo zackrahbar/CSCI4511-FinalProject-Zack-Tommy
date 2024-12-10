@@ -4,6 +4,7 @@ from src.constants import *
 from src.objects import Card, Player, Dealer
 from random import randint
 import curses
+import sys
 
 class Game:
 	def __init__(self, stdscr):
@@ -184,8 +185,18 @@ class Game:
 			return True
 		return False
 
+def open_test_config_file(path: str):
+	print("", file=sys.stderr)
 
 def main(stdscr):
+
+
+	## add in testing support
+	args = sys.argv[1:]
+	print("This is a debug message", file=sys.stderr)
+	if len(args) > 0:
+		print("This is a debug message2", file=sys.stderr)
+
 	init_colors()
 	game = Game(stdscr)
 	game.run()
