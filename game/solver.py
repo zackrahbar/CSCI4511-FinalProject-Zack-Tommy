@@ -1,7 +1,7 @@
-from game.src.constants import *
+from src.constants import *
 from uuid import uuid4
 from random import randint
-from game.src.objects import  Player
+from src.objects import  Player
 
 # class POMDPPlayer(Player):
 #     def __init__(self, name, player_num):
@@ -31,7 +31,7 @@ from game.src.objects import  Player
 class Random(Player):
     def __init__(self, name, player_num):
         super().__init__(name, player_num)
-
+    
     def make_bet(self, amount):
         self.bet = randint(5, self.money)
     
@@ -41,7 +41,5 @@ class Random(Player):
         if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
             ret.append(CMD.DOUBLE)
         self.options = ret
-
         choice = randint(0, len(self.options)-1)
-
-        return self.options[choice]
+        return ord(self.options[choice].value)
