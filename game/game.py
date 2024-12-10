@@ -6,6 +6,7 @@ from random import randint
 import curses
 import sys
 from read_config import Config 
+from solver import Random
 
 class Game:
 	def __init__(self, stdscr):
@@ -51,7 +52,7 @@ class Game:
 			key = self.screen.getch()
 			if key == ord('n'):
 				p_count += 1
-				new_player = Player(f"Player {p_count}", f"P{p_count}")
+				new_player = Random(f"Player {p_count}", f"P{p_count}")
 				self.players.append(new_player)
 				self.display.add_player(new_player)
 		return True
@@ -92,12 +93,9 @@ class Game:
 	def _turn(self):
 		for i in range(len(self.players)):
 			player = self.players[i]
-			player.get_options()
+			cmd = player.get_options()
 			self.display.set_turn(player)
 			while(True):
-				cmd = self.screen.getch()
-				while(cmd not in list(map(lambda x:ord(x.value), CMD))):
-					cmd = self.screen.getch()
 				if cmd == ord('h'):
 					player.add_card(self.dealer.deal())
 				elif cmd == ord(CMD.STAND.value):
