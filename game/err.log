@@ -1,0 +1,18 @@
+This is a debug message
+This is a debug message2
+Traceback (most recent call last):
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 204, in <module>
+    curses.wrapper(main)	
+    ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/curses/__init__.py", line 94, in wrapper
+    return func(stdscr, *args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 200, in main
+    game.run()
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 23, in run
+    if self.start():
+       ^^^^^^^^^^^^
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 50, in start
+    key = self.screen.getch()
+          ^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
