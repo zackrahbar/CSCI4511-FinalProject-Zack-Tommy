@@ -72,13 +72,8 @@ class Game:
 	def _betting(self):
 		for player in self.players:
 			self.display.set_turn(player)
-			bet = ""
-			while(not bet.isdigit() or int(bet) > player.money
-					or int(bet) < BET_MIN or int(bet) > BET_MAX):
-				bet = self.screen.getstr()
-				self.display.set_state("betting_error")
+			bet = player.make_bet(0)
 			self.display.set_state("betting")
-			player.make_bet(bet)
 		self.display.set_turn(None)
 	
 	def _dealing(self):
@@ -98,6 +93,7 @@ class Game:
 			while(True):
 				if cmd == ord('h'):
 					player.add_card(self.dealer.deal())
+					cmd = player.get_options()
 				elif cmd == ord(CMD.STAND.value):
 					break
 				elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
