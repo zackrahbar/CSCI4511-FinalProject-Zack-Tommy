@@ -9,6 +9,7 @@ class POMDPPlayer(Player):
 		#initialize variables for things like learnign rate and q table
             
     def get_options(self):
+        #OVERWRITES PLAYERS METHOD
         #get all possible actions 
 		
     def make_a_move(self):
