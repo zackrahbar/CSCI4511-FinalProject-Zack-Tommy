@@ -20,8 +20,9 @@ from src.objects import  Player
 #     def get_options(self):
 #         #OVERWRITES PLAYERS METHOD
 #         #get all possible actions 
+#         #CALLS MAKE A MOVE PASSING IN THE POSSIBLE ACTIONS AND RETURNS WHAT THAT RETURNS 
 		
-#     def make_a_move(self):
+#     def make_a_move(self, options):
 #         #choose an action via q learning 
 		
 #     def make_bet(self):
