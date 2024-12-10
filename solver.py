@@ -33,7 +33,7 @@ class Random(Player):
         super().__init__(name, player_num)
 
     def make_bet(self, amount):
-        self.bet = randint(0, self.money)
+        self.bet = randint(5, self.money)
     
     def get_options(self):
         ret = [CMD.HIT, CMD.STAND]
