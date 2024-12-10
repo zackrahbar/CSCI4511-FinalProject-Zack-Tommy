@@ -4,6 +4,8 @@ from src.constants import *
 from src.objects import Card, Player, Dealer
 from random import randint
 import curses
+import sys
+from read_config import Config 
 
 class Game:
 	def __init__(self, stdscr):
@@ -184,8 +186,21 @@ class Game:
 			return True
 		return False
 
+def open_test_config_file(path: str):
+	print("", file=sys.stderr)
 
 def main(stdscr):
+
+
+	## add in testing support
+	args = sys.argv[1:]
+	if len(args) > 2:
+		if args[0] == '-f':
+			path = args[1]
+			cfg = Config(path)
+
+	#TODO add config to the game state so that we can access it when setting up the game
+
 	init_colors()
 	game = Game(stdscr)
 	game.run()

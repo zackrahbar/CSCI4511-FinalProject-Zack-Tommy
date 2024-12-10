@@ -91,6 +91,7 @@ class Dealer(Player):
 		self.color = COLOR.DEALER
 		self.avatar = [(randint(0,9), randint(-1,4)) for i in range(45)]
 		self.deck = []
+		#code for creating a deck. 
 		for i in range(num_decks):
 			self.init_deck()
 		self.bet = "0"
@@ -103,6 +104,7 @@ class Dealer(Player):
 				self.deck.append(Card(suit, num))
 
 	def deal(self, facedown=False):
+		#TODO modify this to add uniform random and ordered deck modes
 		if len(self.deck) == 0:
 			return False
 		card = self.deck.pop(randint(0, len(self.deck) - 1))
