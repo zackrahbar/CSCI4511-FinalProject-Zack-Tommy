@@ -19,6 +19,8 @@ class Game:
 		self.dealer = Dealer(self.num_decks)
 		self.display = DisplayTable(stdscr)
 		self.screen = stdscr
+
+		self.types = [0,0,0]
 	
 	def get_num_decks(self):
 		return self.num_decks
@@ -61,11 +63,13 @@ class Game:
 				p_count += 1
 				if cfg_player['mode'] == 'random': 
 					new_player = Random(f"Player {p_count}", f"P{p_count}")
+					self.types[0] = self.types[0] + 1
 				elif cfg_player['mode'] == 'user':
 					new_player = Player(f"Player {p_count}", f"P{p_count}")
-					#TODO add POMDP
+					self.types[1] = self.types[1] + 1
 				elif cfg_player['mode'] == 'POMDP':
 					new_player = POMDPPlayer(f"Player {p_count}", f"P{p_count}", self.get_num_decks())
+					self.types[2] = self.types[2] + 1
 				self.players.append(new_player)
 				self.display.add_player(new_player)
 		else:
@@ -106,7 +110,7 @@ class Game:
 				player.make_bet(bet)
 			elif isinstance(player,POMDPPlayer):
 				self.display.set_turn(player)
-				bet = player.make_bet(self)
+				bet = player.make_bet(self, self.configfg.players[player.number].stop_loss_high,self.configfg.players[player.number].stop_loss_low)
 				if bet == 0:
 					player.lose()
 				if bet == 1:
@@ -128,6 +132,27 @@ class Game:
 			player = self.players[i]
 			if isinstance(player, Random):
 				cmd = player.get_options()
+				self.display.set_turn(player)
+				while(True):
+					if cmd == ord('h'):
+						player.add_card(self.dealer.deal())
+						cmd = player.get_options()
+					elif cmd == ord(CMD.STAND.value):
+						break
+					elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
+						player.money -= player.bet
+						player.bet *= 2
+						player.add_card(self.dealer.deal())
+						if player.bust():
+							self.dealer.add_money(player.lose())
+						break
+					self.display.refresh()
+					self.sleep(300)
+					if player.bust():
+						self.dealer.add_money(player.lose())
+						break
+			elif isinstance(player,POMDPPlayer):
+				cmd = player.get_options(self.players, self.dealer)
 				self.display.set_turn(player)
 				while(True):
 					if cmd == ord('h'):
@@ -197,12 +222,17 @@ class Game:
 
 	def end(self):
 		self.display.set_state("end")
-		while(True):
-			cmd = self.screen.getch()
-			if cmd == ord('y'):
-				return True 
-			elif cmd == ord('n'):
-				return False
+		if self.types[1] != 0:
+			while(True):
+				cmd = self.screen.getch()
+				if cmd == ord('y'):
+					return True 
+				elif cmd == ord('n'):
+					return False
+		elif len(self.players) > 0:
+			return True
+		else:
+			return False
 
 	def end_game(self):
 		for i in range(5,0,-1):
