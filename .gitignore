@@ -1,0 +1,7 @@
+__pycache__/
+
+err.log
+game/err.log
+game/src/__pycache__
+game/err.log
+game/err.log
