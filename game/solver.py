@@ -19,7 +19,7 @@ class POMDPPlayer(Player):
         self.q_table = {}
 
         self.seen = []
-        self.numdecks = game.getNumDecks()
+        self.numdecks = game.get_num_decks()
         self.numCards = self.numdecks * 52
         self.numSeen = 0
         self.allCards = []
