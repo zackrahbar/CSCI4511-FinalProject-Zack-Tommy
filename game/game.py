@@ -12,9 +12,16 @@ class Game:
 	def __init__(self, stdscr, cfg):
 		self.config = cfg
 		self.players = []
-		self.dealer = Dealer()
+		if cfg != None:
+			self.num_decks = cfg.num_decks
+		else:
+			self.num_decks = NUM_DECKS
+		self.dealer = Dealer(self.num_decks)
 		self.display = DisplayTable(stdscr)
 		self.screen = stdscr
+	
+	def get_num_decks(self):
+		return self.num_decks
 
 	def sleep(self, time):
 		self.screen.timeout(time)

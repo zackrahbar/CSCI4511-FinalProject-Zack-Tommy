@@ -6,7 +6,7 @@ metadata:
   deck_mode: random # ordered, random or uniform_random it will draw from the deck randomly or in order. 
   #when ordered is specified all cards must be specified below in deck
   #when deck is random number of deck must be specified in num_decks
-  num_decks: 4 # when ordered -> num_decks is the number of decks that would be in the game required even when ordered mode. 
+  num_decks: 8 # when ordered -> num_decks is the number of decks that would be in the game required even when ordered mode. 
   deck_seed: dfafa # seed used for uniform_random.  
 player1:
   mode: user # computer, random or user, user means that we play this player

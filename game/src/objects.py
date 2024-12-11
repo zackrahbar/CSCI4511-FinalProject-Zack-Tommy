@@ -1,6 +1,7 @@
 from .constants import *
 from uuid import uuid4
 from random import randint
+import sys
 
 class Card:
 	suit_chars = {SUIT.D: "\u2666",
@@ -93,6 +94,8 @@ class Dealer(Player):
 		self.deck = []
 		self.numdecks = num_decks
 		#code for creating a deck. 
+		
+		print("creating deck with length", self.numdecks, file=sys.stderr)
 		for i in range(num_decks):
 			self.init_deck()
 		self.bet = "0"
@@ -107,6 +110,7 @@ class Dealer(Player):
 	def deal(self, facedown=False):
 		#TODO modify this to add uniform random and ordered deck modes
 		if len(self.deck) == 0:
+			print("creating deck with length", self.numdecks, file=sys.stderr)
 			for i in range(self.numdecks):
 				self.init_deck()
 		card = self.deck.pop(randint(0, len(self.deck) - 1))
