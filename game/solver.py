@@ -34,7 +34,10 @@ class Random(Player):
         super().__init__(name, player_num)
     
     def make_bet(self, amount):
-        self.bet = randint(5, self.money)
+        if self.money <= 500:
+            self.bet = randint(5, self.money)
+        else:
+            self.bet = randint(5, 500)
     
     def get_options(self):
         ret = [CMD.HIT, CMD.STAND]
