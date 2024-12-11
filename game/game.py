@@ -54,7 +54,7 @@ class Game:
 				p_count += 1
 				if cfg_player['mode'] == 'random': 
 					#TODO CHANGE this to random
-					new_player = Player(f"Player {p_count}", f"P{p_count}")
+					new_player = Random(f"Player {p_count}", f"P{p_count}")
 				elif cfg_player['mode'] == 'user':
 					new_player = Player(f"Player {p_count}", f"P{p_count}")
 				self.players.append(new_player)
