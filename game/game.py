@@ -78,6 +78,7 @@ class Game:
 				if key == ord('n'):
 					p_count += 1
 					new_player = Player(f"Player {p_count}", f"P{p_count}")
+					self.types[1] = self.types[1] + 1
 					self.players.append(new_player)
 					self.display.add_player(new_player)
 		return True
@@ -229,7 +230,7 @@ class Game:
 					return True 
 				elif cmd == ord('n'):
 					return False
-		elif len(self.players) > 0:
+		elif len(self.players) > 0 and self.types[1] == 0:
 			return True
 		else:
 			return False
