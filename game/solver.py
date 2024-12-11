@@ -33,6 +33,12 @@ class POMDPPlayer(Player):
         #choose an action via q learning 
         action = None
         return action
+    
+    def update_seen(self):
+        self.numSeen = self.numSeen + 1
+
+        if self.numSeen == self.numCards:
+            self.seen = []
 
     def get_options(self, game: Game):
         #OVERWRITES PLAYERS METHOD
@@ -40,16 +46,23 @@ class POMDPPlayer(Player):
         options = []
 
         #add cards on the table to seen 
+        ontable = []
+        numontable = 0
+
         for p in game.players:
             for card in p.cards:
                 if card not in self.seen and card.facedown is False:
                     self.seen.append(card)
-                    self.numSeen = self.numSeen + 1
+                    self.update_seen()
+                    ontable.append(card)
+                    numontable = numontable + 1
         
         for card in game.dealer.cards:
             if card not in self.seen and card.facedown is False:
                 self.seen.append(card)
-                self.numSeen = self.numSeen + 1
+                self.update_seen()
+                ontable.append(card)
+                numontable = numontable + 1
 
         #possible cards to be dealt out next 
         possible = self.allCards - self.seen
