@@ -83,9 +83,18 @@ class Game:
 
 	def _betting(self):
 		for player in self.players:
-			self.display.set_turn(player)
-			bet = player.make_bet(0)
-			self.display.set_state("betting")
+			if isinstance(player, Random):
+				self.display.set_turn(player)
+				bet = player.make_bet(0)
+				self.display.set_state("betting")
+			if isinstance(player,Player):
+				self.display.set_turn(player)
+				bet = ""
+				while(not bet.isdigit() or int(bet) > player.money or int(bet) < BET_MIN or int(bet) > BET_MAX):
+					bet = self.screen.getstr()
+					self.display.set_state("betting_error")
+				self.display.set_state("betting")
+				player.make_bet(bet)
 		self.display.set_turn(None)
 	
 	def _dealing(self):
