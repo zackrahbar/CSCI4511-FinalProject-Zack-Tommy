@@ -84,7 +84,7 @@ class Config:
             # now check for player configs
             computer_cnt = 0
             for i in range(1,self.total_players+1):
-                key = 'player' + str(self.total_players)
+                key = 'player' + str(i)
                 player = yaml_data[key]
                 print("this player: ", key , file=sys.stderr)
                 print(player, file=sys.stderr)
