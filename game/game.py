@@ -6,6 +6,7 @@ from random import randint
 import curses
 import sys
 from read_config import Config 
+from solver import Random
 
 class Game:
 	def __init__(self, stdscr, cfg):
@@ -83,13 +84,8 @@ class Game:
 	def _betting(self):
 		for player in self.players:
 			self.display.set_turn(player)
-			bet = ""
-			while(not bet.isdigit() or int(bet) > player.money
-					or int(bet) < BET_MIN or int(bet) > BET_MAX):
-				bet = self.screen.getstr()
-				self.display.set_state("betting_error")
+			bet = player.make_bet(0)
 			self.display.set_state("betting")
-			player.make_bet(bet)
 		self.display.set_turn(None)
 	
 	def _dealing(self):
@@ -104,14 +100,12 @@ class Game:
 	def _turn(self):
 		for i in range(len(self.players)):
 			player = self.players[i]
-			player.get_options()
+			cmd = player.get_options()
 			self.display.set_turn(player)
 			while(True):
-				cmd = self.screen.getch()
-				while(cmd not in list(map(lambda x:ord(x.value), CMD))):
-					cmd = self.screen.getch()
 				if cmd == ord('h'):
 					player.add_card(self.dealer.deal())
+					cmd = player.get_options()
 				elif cmd == ord(CMD.STAND.value):
 					break
 				elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
