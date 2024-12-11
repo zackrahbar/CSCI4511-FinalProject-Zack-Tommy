@@ -1,7 +1,7 @@
 from src.constants import *
 from uuid import uuid4
 from random import randint
-from src.objects import Player
+from src.objects import Player, Card
 from game import Game
 
 class POMDPPlayer(Player):
@@ -22,6 +22,12 @@ class POMDPPlayer(Player):
         self.numdecks = game.getNumDecks()
         self.numCards = self.numdecks * 52
         self.numSeen = 0
+        self.allCards = []
+
+        for deck in self.numdecks:
+            for num in list(range(2,11)) + ['J','Q','K','A']:
+                for suit in SUIT:
+                    self.allCards.append(Card(suit, num))
 		
     def make_a_move(self, options):
         #choose an action via q learning 
@@ -44,6 +50,9 @@ class POMDPPlayer(Player):
             if card not in self.seen and card.facedown is False:
                 self.seen.append(card)
                 self.numSeen = self.numSeen + 1
+
+        #possible cards to be dealt out next 
+        possible = self.allCards - self.seen
 
         #CALLS MAKE A MOVE PASSING IN THE POSSIBLE ACTIONS AND RETURNS WHAT THAT RETURNS 
         return self.make_a_move(options)
