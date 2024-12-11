@@ -1,15 +1,15 @@
 from src.constants import *
-from uuid import uuid4
 from random import randint
-from src.objects import Player, Card
-from game import Game
+from src.objects import Player, Card, Dealer
+
 
 class POMDPPlayer(Player):
-    def __init__(self, name, player_num, game: Game):
+    def __init__(self, name, player_num, numDecks):
         # Create a new player
         # Initialize variables for things like learning rate and Q-table
 
         super().__init__(name, player_num)
+        self.number = player_num
 
         # Initialize variables
         self.learning_rate = 0.1
@@ -19,7 +19,7 @@ class POMDPPlayer(Player):
         self.q_table = {}
 
         self.seen = []
-        self.numdecks = game.get_num_decks()
+        self.numdecks = numDecks
         self.numCards = self.numdecks * 52
         self.numSeen = 0
         self.allCards = []
@@ -40,7 +40,7 @@ class POMDPPlayer(Player):
         if self.numSeen == self.numCards:
             self.seen = []
 
-    def get_options(self, game: Game):
+    def get_options(self, players: Player, dealer: Dealer):
         #OVERWRITES PLAYERS METHOD
         #get all possible actions 
         options = []
@@ -49,7 +49,7 @@ class POMDPPlayer(Player):
         ontable = []
         numontable = 0
 
-        for p in game.players:
+        for p in players:
             for card in p.cards:
                 if card not in self.seen and card.facedown is False:
                     self.seen.append(card)
@@ -57,7 +57,7 @@ class POMDPPlayer(Player):
                     ontable.append(card)
                     numontable = numontable + 1
         
-        for card in game.dealer.cards:
+        for card in dealer.cards:
             if card not in self.seen and card.facedown is False:
                 self.seen.append(card)
                 self.update_seen()
@@ -70,10 +70,16 @@ class POMDPPlayer(Player):
         #CALLS MAKE A MOVE PASSING IN THE POSSIBLE ACTIONS AND RETURNS WHAT THAT RETURNS 
         return self.make_a_move(options)
 		
-    def make_bet(self):
+    def make_bet(self, high, low):
         #OVERWRITES PLAYERS METHOD
         #calcualte a bet based on current bank
-        self.bet = 5 #placeholder
+
+        if self.money >= high:
+            self.bet = 1
+        elif self.money < low:
+            self.bet = 0
+        else:
+            self.bet = 5 #placeholder
 		
 class Random(Player):
     def __init__(self, name, player_num):

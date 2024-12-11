@@ -6,7 +6,7 @@ from random import randint
 import curses
 import sys
 from read_config import Config 
-from solver import Random
+from solver import Random, POMDPPlayer
 
 class Game:
 	def __init__(self, stdscr, cfg):
@@ -60,10 +60,12 @@ class Game:
 			for cfg_player in self.config.players:
 				p_count += 1
 				if cfg_player['mode'] == 'random': 
-					#TODO CHANGE this to random
 					new_player = Random(f"Player {p_count}", f"P{p_count}")
 				elif cfg_player['mode'] == 'user':
 					new_player = Player(f"Player {p_count}", f"P{p_count}")
+					#TODO add POMDP
+				elif cfg_player['mode'] == 'POMDP':
+					new_player = POMDPPlayer(f"Player {p_count}", f"P{p_count}", self.get_num_decks())
 				self.players.append(new_player)
 				self.display.add_player(new_player)
 		else:
@@ -102,6 +104,14 @@ class Game:
 					self.display.set_state("betting_error")
 				self.display.set_state("betting")
 				player.make_bet(bet)
+			elif isinstance(player,POMDPPlayer):
+				self.display.set_turn(player)
+				bet = player.make_bet(self)
+				if bet == 0:
+					player.lose()
+				if bet == 1:
+					player.lose()
+				self.display.set_state("betting")
 		self.display.set_turn(None)
 	
 	def _dealing(self):
