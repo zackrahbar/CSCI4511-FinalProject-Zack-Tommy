@@ -87,7 +87,7 @@ class Game:
 				self.display.set_turn(player)
 				bet = player.make_bet(0)
 				self.display.set_state("betting")
-			if isinstance(player,Player):
+			elif isinstance(player,Player):
 				self.display.set_turn(player)
 				bet = ""
 				while(not bet.isdigit() or int(bet) > player.money or int(bet) < BET_MIN or int(bet) > BET_MAX):
@@ -130,7 +130,7 @@ class Game:
 					if player.bust():
 						self.dealer.add_money(player.lose())
 						break
-			if isinstance(player,Player):
+			elif isinstance(player,Player):
 				player.get_options()
 				self.display.set_turn(player)
 				while(True):
