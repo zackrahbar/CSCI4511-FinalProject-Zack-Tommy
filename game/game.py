@@ -109,26 +109,50 @@ class Game:
 	def _turn(self):
 		for i in range(len(self.players)):
 			player = self.players[i]
-			cmd = player.get_options()
-			self.display.set_turn(player)
-			while(True):
-				if cmd == ord('h'):
-					player.add_card(self.dealer.deal())
-					cmd = player.get_options()
-				elif cmd == ord(CMD.STAND.value):
-					break
-				elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
-					player.money -= player.bet
-					player.bet *= 2
-					player.add_card(self.dealer.deal())
+			if isinstance(player, Random):
+				cmd = player.get_options()
+				self.display.set_turn(player)
+				while(True):
+					if cmd == ord('h'):
+						player.add_card(self.dealer.deal())
+						cmd = player.get_options()
+					elif cmd == ord(CMD.STAND.value):
+						break
+					elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
+						player.money -= player.bet
+						player.bet *= 2
+						player.add_card(self.dealer.deal())
+						if player.bust():
+							self.dealer.add_money(player.lose())
+						break
+					self.display.refresh()
+					self.sleep(300)
 					if player.bust():
 						self.dealer.add_money(player.lose())
-					break
-				self.display.refresh()
-				self.sleep(300)
-				if player.bust():
-					self.dealer.add_money(player.lose())
-					break
+						break
+			if isinstance(player,Player):
+				player.get_options()
+				self.display.set_turn(player)
+				while(True):
+					cmd = self.screen.getch()
+					while(cmd not in list(map(lambda x:ord(x.value), CMD))):
+						cmd = self.screen.getch()
+					if cmd == ord('h'):
+						player.add_card(self.dealer.deal())
+					elif cmd == ord(CMD.STAND.value):
+						break
+					elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
+						player.money -= player.bet
+						player.bet *= 2
+						player.add_card(self.dealer.deal())
+						if player.bust():
+							self.dealer.add_money(player.lose())
+						break
+					self.display.refresh()
+					self.sleep(300)
+					if player.bust():
+						self.dealer.add_money(player.lose())
+						break
 		self.display.set_turn(None)
 		self.dealer.reveal()
 		while(not self.dealer_bust() and max(self.dealer.sums()) < 17):
