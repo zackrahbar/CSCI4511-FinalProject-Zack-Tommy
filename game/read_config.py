@@ -1,6 +1,8 @@
 
 import yaml
 import sys
+from src.constants import SUIT
+from src.objects import Card
 #config class opens a config file and then stores it in memory and addess accessor functions for 
 
 # variables expected in config metadata 
@@ -31,10 +33,15 @@ class Config:
     def __init__(self, path: str):
         #check if file exists
         self.players = []
-
+        self.total_players = 0
+        self.computer_players = 0 
+        self.deck_mode = 'random'
+        self.num_decks = 8
+        self.deck_seed = 'seed'
+        self.cards = []
         try: 
             with open(path, "r") as file:
-                yaml_data = yaml.load(file)
+                yaml_data = yaml.safe_load(file)
         except FileNotFoundError:
             print(f"Error: The file '{path}' does not exist. Please check the file path.", file=sys.stderr)
             sys.exit(1)
@@ -62,8 +69,9 @@ class Config:
                 print("Error: num computer_players is invalid: ", self.total_players, 'Must be 0 or greater and less than players specified', file=sys.stderr)
                 sys.exit(1)
             self.deck_mode = metadata['deck_mode']
-            if(self.deck_mode != 'ordered' or self.deck_mode != 'uniform_random' or self.deck_mode != 'random'):
-                print("Error: invalid deck mode", file=sys.stderr)
+            
+            if(self.deck_mode != 'ordered' and self.deck_mode != 'uniform_random' and self.deck_mode != 'random'):
+                print("Error: invalid deck mode: ", self.deck_mode, file=sys.stderr)
                 sys.exit(1)
             self.num_decks = int(metadata['num_decks'])
             if(self.num_decks < 1 or self.num_decks > MAX_CFG_NUM_DECKS):
@@ -75,28 +83,38 @@ class Config:
             self.players = []
             # now check for player configs
             computer_cnt = 0
-            for i in range(0,self.total_players):
+            for i in range(1,self.total_players+1):
                 key = 'player' + str(self.total_players)
                 player = yaml_data[key]
+                print("this player: ", key , file=sys.stderr)
+                print(player, file=sys.stderr)
                 if 'mode' not in player:
                     print("Error key : ", 'mode', 'does not exist in metadata', file=sys.stderr)
                     sys.exit(1)
                 if player['mode'] == 'computer':
                     for key in PLAYER_COMP_CONTAINS_VARS:
-                        if key not in metadata:
+                        if key not in player:
                             print("Error key : ", key, 'does not exist in player ', i,'.', file=sys.stderr)
                             sys.exit(1)
                 elif player['mode'] == 'user':
                     for key in PLAYER_USER_CONTAINS_VARS:
-                        if key not in metadata:
+                        if key not in player:
                             print("Error key : ", key, 'does not exist in player ', i,'.', file=sys.stderr)
                             sys.exit(1)
+                    
+                elif player['mode'] == 'random':
+                    for key in PLAYER_USER_CONTAINS_VARS:
+                        if key not in player:
+                            print("Error key : ", key, 'does not exist in player ', i,'.', file=sys.stderr)
+                            sys.exit(1)
+                    
                 else:
                     print("Error in key : ", 'mode is incorrect in player', i,'.', file=sys.stderr)
                     sys.exit(1)
                 self.players.append(player)
 
-
+            print("Players", file=sys.stderr)
+            print(self.players, file=sys.stderr)
 
             #now parse deck if required 
             self.cards = []
@@ -108,8 +126,24 @@ class Config:
                 #build deck obejcts 
                 for card_str in yaml_card_list: 
                     print("card_str", file=sys.stderr)
-                    #TODO finish this my spliting strings then creating card objects and then adding to the list
+                    
+                    [suit,num] = card_str.split('',1)
+                    this_suit
+                    if suit == 'D': 
+                        this_suit = SUIT.D
+                    elif suit == 'S':
+                        this_suit = SUIT.S
+                    elif suit == 'H':
+                        this_suit = SUIT.H
+                    elif suit == 'C':
+                        this_suit = SUIT.C
+                    else: 
+                        print("Card Suit invalid ", suit, file=sys.stderr)
+                        sys.exit(1)
+                    card = Card(this_suit,num)
+                    self.cards.append(card)
 
+            
 
         except yaml.YAMLError as e: 
             print(f"Error: Failed to parse the YAML file. Details: {e}", file=sys.stderr)

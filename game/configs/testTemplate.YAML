@@ -8,10 +8,11 @@ metadata:
   num_decks: 0 # when ordered -> num_decks is the number of decks that would be in the game required even when ordered mode. 
   deck_seed: dfafa # seed used for uniform_random.  
 player1:
-  mode: computer # computer or user, user means that we play this player
+  mode: computer # computer, random or user, user means that we play this player
   start_money: 1000 # start money 
   stop_loss_high: 10000 # quit game when at or above this value 
   stop_loss_low: 500 # quit game when below this value
+  discount_rate: 0.98 # discount rate of recieving the value later on. float between 0 and 1 
 #Deck is the order of the deck we want 
 #D = "diamonds"
 #S = "spades"

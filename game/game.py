@@ -9,7 +9,8 @@ from read_config import Config
 from solver import Random
 
 class Game:
-	def __init__(self, stdscr):
+	def __init__(self, stdscr, cfg):
+		self.config = cfg
 		self.players = []
 		self.dealer = Dealer()
 		self.display = DisplayTable(stdscr)
@@ -48,13 +49,24 @@ class Game:
 			self.print("*Screen too small**")
 		p_count = 0
 		key = None
-		while(p_count != max_players and key != ord('s')):
-			key = self.screen.getch()
-			if key == ord('n'):
+		if self.config != None:
+			for cfg_player in self.config.players:
 				p_count += 1
-				new_player = Random(f"Player {p_count}", f"P{p_count}")
+				if cfg_player['mode'] == 'random': 
+					#TODO CHANGE this to random
+					new_player = Player(f"Player {p_count}", f"P{p_count}")
+				elif cfg_player['mode'] == 'user':
+					new_player = Player(f"Player {p_count}", f"P{p_count}")
 				self.players.append(new_player)
 				self.display.add_player(new_player)
+		else:
+			while(p_count != max_players and key != ord('s')):
+				key = self.screen.getch()
+				if key == ord('n'):
+					p_count += 1
+					new_player = Player(f"Player {p_count}", f"P{p_count}")
+					self.players.append(new_player)
+					self.display.add_player(new_player)
 		return True
 		
 	def gameplay(self):
@@ -188,15 +200,17 @@ def main(stdscr):
 
 	## add in testing support
 	args = sys.argv[1:]
-	if len(args) > 2:
+	if len(args) == 2:
 		if args[0] == '-f':
 			path = args[1]
 			cfg = Config(path)
-
+		print("Invalid args")
+	else: 
+		cfg = None
 	#TODO add config to the game state so that we can access it when setting up the game
 
 	init_colors()
-	game = Game(stdscr)
+	game = Game(stdscr,cfg)
 	game.run()
 
 if __name__ == '__main__':
