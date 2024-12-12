@@ -1,6 +1,8 @@
 from src.objects import Player, Card, Dealer
 import sys
 import copy
+from src.constants import *
+
 # Observed state object and simulator objects. 
 # a pompd agent will pass all their obervations into a state then will run the simulator on it to perform 
 # monecarlotree search so that agent can make the best decison
@@ -213,6 +215,7 @@ class ObservedState:
         self.dealer_cards.add_card_obj(card)
             
         state = ObservedState(self.money, self.decks, self.seen_cards, self.player_cards, self.dealer_cards)
+        #TODO set to a belief state
 
         return (state, belief)
 
@@ -225,8 +228,95 @@ class BeliefState:
         these actions could result staying in this state ( hit ) or transitioning to a dealer state ( stand or hit and bust) 
 
     '''
-    def generate_actions(self):
-        print()
+    def generate_actions(self, action):
+
+        values = ['A',2,3,4,5,6,7,8,9,10]
+
+        total = [0]
+        for card in self.player_cards:
+            if card.num == 'A':
+                temp = [11 + t for t in total]
+                total = [1 + t for t in total]
+                total.extend(temp)
+            elif not card.num.isdigit():
+                total = [10 + t for t in total]
+            else:
+                total = [int(card.num) + t for t in total]
+        total = [t for t in total if t <= 21]
+
+        if action == 'h':
+            returning = []
+            for value in values:
+                if len(total) == 1:
+                    if value != 'A':
+                        if value + total[0] >= 21:
+                            dealer = None
+                            #set to a dealerState
+                            return dealer
+                        else:
+                            self.player_cards.add_card_value(value)
+                            belief = None
+                            #set to beliefState
+                            returning.append(belief)
+                    else:
+                            low_ace = total[0] + 1
+                            high_ace = total[0] + 11
+                            
+                            if low_ace <= 21:
+                                self.player_cards.add_card_value(1)
+                                belief = None  # TODO: Set to specific belief state
+                                returning.append(belief)
+                            
+                            if high_ace <= 21:
+                                self.player_cards.add_card_value(11)
+                                belief = None  # TODO: Set to specific belief state
+                                returning.append(belief)
+                            
+                            if low_ace > 21 and high_ace > 21:
+                                dealer = None  # TODO: Set to specific dealer state
+                                return dealer
+
+                if len(total) == 2:
+                    for t in total:
+                        if value != 'A':
+                            if value + t >= 21:
+                                dealer = None
+                                #set to a dealerState
+                                return dealer
+                            else:
+                                self.player_cards.add_card_value(value)
+                                belief = None
+                                #set to beliefState
+                                returning.append(belief)
+                        else:
+                                low_ace = t + 1
+                                high_ace = t + 11
+                                
+                                if low_ace <= 21:
+                                    self.player_cards.add_card_value(1)
+                                    belief = None  # TODO: Set to specific belief state
+                                    returning.append(belief)
+                                
+                                if high_ace <= 21:
+                                    self.player_cards.add_card_value(11)
+                                    belief = None  # TODO: Set to specific belief state
+                                    returning.append(belief)
+                                
+                                if low_ace > 21 and high_ace > 21:
+                                    dealer = None  # TODO: Set to specific dealer state
+                                    return dealer
+
+            return returning
+
+        elif action == 's':
+            dealer = None
+            #set to a dealerState
+            return dealer
+
+        elif action == 'd':
+            return None
+            #IDK what to do here       
+
 
     def generate_next_states():
         '''
