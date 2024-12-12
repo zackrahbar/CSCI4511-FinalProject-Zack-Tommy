@@ -302,7 +302,7 @@ class BeliefState:
                                     belief = None  # TODO: Set to specific belief state
                                     returning.append(belief)
                                 
-                                if low_ace >= 21 and high_ace >= 21:
+                                if low_ace >= 21 or high_ace >= 21:
                                     dealer = None  # TODO: Set to specific dealer state
                                     return dealer
 
