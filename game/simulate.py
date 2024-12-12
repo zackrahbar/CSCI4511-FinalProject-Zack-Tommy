@@ -202,9 +202,19 @@ class ObservedState:
         possible.subtract_set(self.player_cards)
         possible.subtract_set(self.dealer_cards)
 
-        belief = possible.probability_of_num(card.num)
+        num = card.num
 
-        return belief
+        if num == 'J' or num == 'Q' or num == 'K':
+            belief = possible.probability_of_num(10)
+        else:
+            belief = possible.probability_of_num(card.num)
+
+        self.seen_cards.add_card_obj(card)
+        self.dealer_cards.add_card_obj(card)
+            
+        state = ObservedState(self.money, self.decks, self.seen_cards, self.player_cards, self.dealer_cards)
+
+        return (state, belief)
 
 
 
