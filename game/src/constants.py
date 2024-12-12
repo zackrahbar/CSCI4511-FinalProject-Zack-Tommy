@@ -1,7 +1,7 @@
 from enum import Enum
 import curses
 
-BET_MIN = 5
+BET_MIN = 0
 BET_MAX = 500
 STARTING_MONEY = 1000
 NUM_DECKS = 3

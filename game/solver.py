@@ -75,47 +75,29 @@ class POMDPPlayer(Player):
         #calcualte a bet based on current bank
 
         if self.money >= high:
-            self.bet = 1
+            self.bet = -1
         elif self.money < low:
-            self.bet = 0
+            self.bet = -2
         else:
-            prob = 0
-            #set this to the probability of getting a winning hand 
-            if prob >= 80:
+            bet = 0
+            #set this to which bet to take (from the action?)
+            if bet == 0:
                 if self.money <= 500:
-                    if self.money-250 < 5:
-                        self.bet = randint(5, self.money)
-                    else:
-                        self.bet = randint(self.money-250, self.money)
+                    self.bet = int(self.money*.7)
                 else:
-                    self.bet = randint(250, 500)
+                    self.bet = int(500*.7)
 
-            elif prob >= 60:
-                if self.money <= 250:
-                    if self.money-100 < 5:
-                        self.bet = randint(5, self.money)
-                    else:
-                        self.bet = randint(self.money-100, self.money)
+            elif bet == 1:
+                if self.money <= 500:
+                    self.bet = int(self.money*.4)
                 else:
-                    self.bet = randint(150, 250)
+                    self.bet = int(500*.4)
 
-            elif prob >= 40:
-                if self.money <= 150:
-                    if self.money-100 < 5:
-                        self.bet = randint(5, self.money)
-                    else:
-                        self.bet = randint(self.money-100, self.money)
+            elif bet == 2:
+                if self.money <= 500:
+                    self.bet = int(self.money*.1)
                 else:
-                    self.bet = randint(50, 150)
-
-            else:
-                if self.money <= 50:
-                    if self.money-45 < 5:
-                        self.bet = randint(5, self.money)
-                    else:
-                        self.bet = randint(self.money-45, self.money)
-                else:
-                    self.bet = randint(5, 50)
+                    self.bet = int(500*.1)
 		
 class Random(Player):
     def __init__(self, name, player_num):
