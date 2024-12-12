@@ -79,7 +79,43 @@ class POMDPPlayer(Player):
         elif self.money < low:
             self.bet = 0
         else:
-            self.bet = 5 #placeholder
+            prob = 0
+            #set this to the probability of getting a winning hand 
+            if prob >= 80:
+                if self.money <= 500:
+                    if self.money-250 < 5:
+                        self.bet = randint(5, self.money)
+                    else:
+                        self.bet = randint(self.money-250, self.money)
+                else:
+                    self.bet = randint(250, 500)
+
+            elif prob >= 60:
+                if self.money <= 250:
+                    if self.money-100 < 5:
+                        self.bet = randint(5, self.money)
+                    else:
+                        self.bet = randint(self.money-100, self.money)
+                else:
+                    self.bet = randint(150, 250)
+
+            elif prob >= 40:
+                if self.money <= 150:
+                    if self.money-100 < 5:
+                        self.bet = randint(5, self.money)
+                    else:
+                        self.bet = randint(self.money-100, self.money)
+                else:
+                    self.bet = randint(50, 150)
+
+            else:
+                if self.money <= 50:
+                    if self.money-45 < 5:
+                        self.bet = randint(5, self.money)
+                    else:
+                        self.bet = randint(self.money-45, self.money)
+                else:
+                    self.bet = randint(5, 50)
 		
 class Random(Player):
     def __init__(self, name, player_num):
