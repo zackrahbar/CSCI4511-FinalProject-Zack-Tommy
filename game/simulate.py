@@ -193,8 +193,18 @@ class ObservedState:
     
     
              
-    def generate_belief_states(self, action):
-        '''generate successor state based off an action'''
+    def generate_belief_states(self, card: Card):
+        '''give the dealer a card and then would say the belief probability is the 
+        chance of that card being pulled from remaining unseen cards '''
+
+        possible = CardSet(None, self.decks)
+        possible.subtract_set(self.seen_cards)
+        possible.subtract_set(self.player_cards)
+        possible.subtract_set(self.dealer_cards)
+
+        belief = possible.probability_of_num(card.num)
+
+        return belief
 
 
 
