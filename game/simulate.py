@@ -81,6 +81,8 @@ class CardSet:
             self.cards[10] += 1
         else:
             print("card Error", file=sys.stderr)
+            return False
+        return True
     def add_card_value(self, num):
         '''num should be an integer or a string 'A' for ace. k,q,j are all 10. '''
         if num.isdigit():
@@ -92,7 +94,47 @@ class CardSet:
             self.cards[10] += 1
         else:
             print("card Error", file=sys.stderr)
-    
+            return False
+        return True
+    def remove_card_obj(self, card: Card):
+        if card.num.isdigit():
+            num = int(card.num)
+            if self.cards[num] == 0: 
+                return False
+            self.cards[num] -= 1
+        elif card.num == 'A':
+            if self.cards['A'] == 0: 
+                return False
+            self.cards['A'] -= 1
+        elif card.num == 'J' or card.num == 'Q' or card.num == 'K':
+            if self.cards[10] == 0: 
+                return False
+            self.cards[10] -= 1
+        else:
+            print("card Error", file=sys.stderr)
+            return False
+        return True
+        
+    def remove_card_value(self, num):
+        '''num should be an integer or a string 'A' for ace. k,q,j are all 10. '''
+        if num.isdigit():
+            num = int(num)
+            if self.cards[num] == 0: 
+                return False
+            self.cards[num] -= 1
+        elif num == 'A':
+            if self.cards['A'] == 0: 
+                return False
+            self.cards['A'] -= 1
+        elif num == 'J' or num == 'Q' or num == 'K':
+            if self.cards[10] == 0: 
+                return False
+            self.cards[10] -= 1
+        else:
+            print("card Error", file=sys.stderr)
+            return False
+        return True
+
     def count(self):
         '''Return the count of the cards in this deck'''
         total = 0
@@ -106,6 +148,7 @@ class CardSet:
         total_count = self.count()
         card_count = self.cards[num]
         return float(card_count)/float(total_count)
+
     def subtract_set(self, other_set):
         '''This will subtract from the original set the other set and return true on success
         useage: setA.subtract_set(setB) if set A has 5 aces and set B has 3 aces then set A will have 2 Aces after
@@ -135,7 +178,7 @@ class CardSet:
 # money is distributed -> bet state 
 
 class BetState:
-    def __init__(self, money: int, turn: int, decks: int, seen_cards: CardSet, max_bet: int):
+    def __init__(self, money: int, decks: int, seen_cards: CardSet, max_bet: int, stop_high: int, stop_low: int):
         '''
         Takes in current State
         money -> the players current balance
@@ -145,12 +188,13 @@ class BetState:
         this state generates bet actions that when completed will generate possible observed states (because the cards are delt after bets)
         '''
         self.money = money
-        self.turn = turn
         self.decks = decks
-        #set up empty sets for now becuase we haven't observed anything yet. 
+        
         self.seen_cards = copy.deepcopy(seen_cards) # includes only cards from previous rounds and this rounds cards that are not the dealers or the players cards
         self.child_states = []
         self.max_bet = max_bet
+        self.stop_high = stop_high
+        self.stop_low = stop_low
 
     def generate_actions(self):
         # generates betting actions 
@@ -162,17 +206,104 @@ class BetState:
 
         if self.money * .4 > self.max_bet:
             # since 40% of our bead is higher than max bet we will say bet high = 90% of max bet, bet med is 40% of max and low is 10%
-            bet_high = percent(self.max_bet,.40)
-            bet_ = percent(self.max_bet,.40)
-            #Not Done this yet
+            bet_high = percent(self.max_bet, .90)
+            bet_med = percent(self.max_bet, .40)
+            bet_low = percent(self.max_bet, .10)
+        elif self.money * .9 < self.max_bet:
+            # since 40% and 90% of our money is less than max bet we will use our money to set proportions so we adject our bets to the money we have. 
+            bet_high = percent(self.money, .90)
+            bet_med = percent(self.money, .40)
+            bet_low = percent(self.money, .10)
+        else: 
+            bet_high = percent(self.max_bet, .90)
+            bet_med = percent(self.max_bet, .40)
+            bet_low = percent(self.max_bet, .10)
+        actions = [
+                   'bet '+ str(bet_high),
+                   'bet '+ str(bet_med),
+                   'bet '+ str(bet_low),
+                   ]
+        if self.money > self.stop_high:
+            actions = ['Stop Success']
+        if self.money < self.stop_low:
+            actions = ['Stop Failure']
 
+        return actions
+        
     def generate_next_states(self,action):
         '''
         genrate a list of possible next states and their transition probabilities. 
         [(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability)]
         transition probabilities are based off cards remaining in the deck
+        
+        returns either observed states or will return betState in the case of Stop Success or Stop Failure 
+        
         '''
+        if action[0] == 'Stop Success':
+            #error should have stopped here
+            print('Tree recursion error generate next states in BetState, success', file= sys.stderr)
+        if action[0] == 'Stop Failure':
+            #error should have stopped here
+            print('Tree recursion error generate next states in BetState, failure', file= sys.stderr)
+        [action, bet_amount] = action.split(' ', 1)
+        if not bet_amount.isdigit(): 
+            print('Error generate next states in BetState, invalid action', file= sys.stderr)
 
+        new_money = self.money - bet_amount
+        
+        # reaminaing deck
+
+        remaining_deck = CardSet(decks=self.decks)
+        remaining_deck.subtract_set(self.seen_cards)
+
+        #create all possible combinations of 3 cards being delt. 1 to player then 1 to dealer then 1 to player. 
+        new_states=[]
+
+        for c1 in list(range(2,11) + ['A']):
+            #get probability 
+            probability = 1 
+            probability_c1 = remaining_deck.probability_of_num[c1]
+            # take a card out of seen cards
+            if remaining_deck.remove_card_value[c1] == False:
+                # a card is not able to be taken so skip this combination
+                new_states.append((None,0))
+                continue 
+            probability = probability * probability_c1
+            player_cards = CardSet()
+            dealer_cards = CardSet()
+            player_cards.add_card_value[c1]
+            for c2 in list(range(2,11) + ['A']):
+                #update prob
+                probability_c2 = remaining_deck.probability_of_num[c2]
+                # take a card out of seen cards and add to dealer cards
+                if remaining_deck.remove_card_value[c2] == False:
+                    # a card is not able to be taken so skip this combination
+                    new_states.append((None,0))
+                    continue 
+                probability = probability * probability_c2
+                dealer_cards.add_card_value[c2]
+                for c3 in list(range(2,11) + ['A']):
+                    #update prob
+                    probability_c3 = remaining_deck.probability_of_num[c3] # this is now the transition probability for this state from previous state given this action
+                    # take a card out of seen cards and add to dealer cards
+                    if remaining_deck.remove_card_value[c2] == False:
+                    # a card is not able to be taken so skip this combination
+                        new_states.append((None,0))
+                        continue 
+                    probability = probability * probability_c3
+                    player_cards.add_card_value[c3]
+                    new_state = ObservedState(new_money,self.decks,self.seen_cards,player_cards,dealer_cards)
+                    new_states.append((new_state, probability))
+                    # reset seen cards and player cards. 
+                    player_cards.remove_card_value[c3]
+                    remaining_deck.add_card_value[c3]
+                dealer_cards.remove_card_value[c2]
+                remaining_deck.add_card_value[c2]
+            player_cards.remove_card_value[c1]
+            remaining_deck.add_card_value[c1]
+
+        #return new states with thier transition probabilities
+        return new_states
 
 class ObservedState:
     def __init__(self, money: int, decks: int, seen_cards: CardSet, player_cards: CardSet, dealer_cards: CardSet):
@@ -188,7 +319,7 @@ class ObservedState:
        '''
        self.money = money
        self.decks = decks
-       #set up empty sets for now becuase we haven't observed anything yet. 
+       
        self.seen_cards = copy.deepcopy(seen_cards) # includes only cards from previous rounds and this rounds cards that are not the dealers or the players cards
        self.player_cards = copy.deepcopy(player_cards) # cards currently in our hand
        self.dealer_cards = copy.deepcopy(dealer_cards) # cards observed in dealers hand (so the face up one)
