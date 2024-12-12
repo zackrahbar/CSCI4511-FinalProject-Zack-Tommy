@@ -292,17 +292,17 @@ class BeliefState:
                                 low_ace = t + 1
                                 high_ace = t + 11
                                 
-                                if low_ace <= 21:
+                                if low_ace < 21:
                                     self.player_cards.add_card_value(1)
                                     belief = None  # TODO: Set to specific belief state
                                     returning.append(belief)
                                 
-                                if high_ace <= 21:
+                                if high_ace < 21:
                                     self.player_cards.add_card_value(11)
                                     belief = None  # TODO: Set to specific belief state
                                     returning.append(belief)
                                 
-                                if low_ace > 21 and high_ace > 21:
+                                if low_ace >= 21 and high_ace >= 21:
                                     dealer = None  # TODO: Set to specific dealer state
                                     return dealer
 
