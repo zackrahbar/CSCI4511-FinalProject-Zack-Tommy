@@ -75,11 +75,29 @@ class POMDPPlayer(Player):
         #calcualte a bet based on current bank
 
         if self.money >= high:
-            self.bet = 1
+            self.bet = -1
         elif self.money < low:
-            self.bet = 0
+            self.bet = -2
         else:
-            self.bet = 5 #placeholder
+            bet = 0
+            #set this to which bet to take (from the action?)
+            if bet == 0:
+                if self.money <= 500:
+                    self.bet = int(self.money*.7)
+                else:
+                    self.bet = int(500*.7)
+
+            elif bet == 1:
+                if self.money <= 500:
+                    self.bet = int(self.money*.4)
+                else:
+                    self.bet = int(500*.4)
+
+            elif bet == 2:
+                if self.money <= 500:
+                    self.bet = int(self.money*.1)
+                else:
+                    self.bet = int(500*.1)
 		
 class Random(Player):
     def __init__(self, name, player_num):

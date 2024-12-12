@@ -112,9 +112,9 @@ class Game:
 			elif isinstance(player,POMDPPlayer):
 				self.display.set_turn(player)
 				bet = player.make_bet(self, self.configfg.players[player.number].stop_loss_high,self.configfg.players[player.number].stop_loss_low)
-				if bet == 0:
+				if bet == -1:
 					player.lose()
-				if bet == 1:
+				if bet == -2:
 					player.lose()
 				self.display.set_state("betting")
 		self.display.set_turn(None)
