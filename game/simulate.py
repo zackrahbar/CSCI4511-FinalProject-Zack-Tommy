@@ -368,7 +368,8 @@ class BeliefState:
         self.decks = decks
         self.bet = bet
         self.seen_cards = copy.deepcopy(seen_cards)
-        self.player_cards = copy.deepcopy(dealer_cards)
+        self.player_cards = copy.deepcopy(player_cards)
+        self.dealer_cards = copy.deepcopy(dealer_cards)
 
 
     def generate_next_states(self):
