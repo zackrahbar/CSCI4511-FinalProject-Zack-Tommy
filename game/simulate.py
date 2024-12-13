@@ -255,8 +255,9 @@ class BetState:
 
         return actions
         
-    def generate_next_states(self,action):
+    def generate_next_states(self,action: str):
         '''
+        list[tuple[ObservedState,float]]
         genrate a list of possible next states and their transition probabilities. 
         [(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability)]
         transition probabilities are based off cards remaining in the deck
@@ -264,10 +265,10 @@ class BetState:
         returns either observed states or will return betState in the case of Stop Success or Stop Failure 
         
         '''
-        if action[0] == 'Stop Success':
+        if action == 'Stop Success':
             #error should have stopped here
             print('Tree recursion error generate next states in BetState, success', file= sys.stderr)
-        if action[0] == 'Stop Failure':
+        if action == 'Stop Failure':
             #error should have stopped here
             print('Tree recursion error generate next states in BetState, failure', file= sys.stderr)
         [action, bet_amount] = action.split(' ', 1)
@@ -356,7 +357,7 @@ class ObservedState:
         self.child.extend(child)
     
              
-    def generate_belief_states(self, card: Card):
+    def generate_belief_states(self, num):
         '''give the dealer a card and then would say the belief probability is the 
         chance of that card being pulled from remaining unseen cards '''
 
@@ -365,15 +366,15 @@ class ObservedState:
         possible.subtract_set(self.player_cards)
         possible.subtract_set(self.dealer_cards)
 
-        num = card.num
+        #num = card.num
 
         if num == 'J' or num == 'Q' or num == 'K':
             belief = possible.probability_of_num(10)
         else:
-            belief = possible.probability_of_num(card.num)
+            belief = possible.probability_of_num(num)
 
-        self.seen_cards.add_card_obj(card)
-        self.dealer_cards.add_card_obj(card)
+        #self.seen_cards.add_card_obj(card)
+        self.dealer_cards.add_card_value(num)
             
         state = BeliefState(self.money, self.decks, self.bet, self.seen_cards, self.player_cards, self.dealer_cards, self)
         
@@ -522,14 +523,14 @@ class BeliefState:
                 total = [int(card.num) + t for t in total]
         total = [t for t in total if t <= 21]
 
-        available = [CMD.STAND]
+        available = ['s']
         for t in total:
             if t < 20:
-                available.append(CMD.HIT)
+                available.append('h')
                 break
         sums = set(total)
         if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
-            available.append(CMD.DOUBLE)
+            available.append('d')
 
         return available
         
