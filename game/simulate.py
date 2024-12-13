@@ -163,8 +163,28 @@ class CardSet:
         self.cards = new_set
         return True
     
-
-
+    def set_sum(self):
+        '''
+            If the sum is using an ace and is over 21 return the lower sum.
+        '''
+        sum = 0
+        # add all regular cards
+        for i in range(2,11):
+            sum += i * self.cards[i]
+        for k in range(self.cards['A']):
+            if (sum + 11) > 21:
+                sum + 1
+        return sum
+    
+    def add_set(self, other_set):
+        '''Adds the other set to this current set '''
+        new_set = {}
+        for key in self.cards.keys():
+            new_set[key] = self.cards[key] + other_set.cards[key]
+            if new_set[key] < 0:
+                return False
+        self.cards = new_set
+        return True
 # state life cycles
 # Action     : Player bets ->  Cards are delt -> beliefs applied ->  players are simulated   ->         Our choice                                 -> other remaining players ->    Dealer turn         -> Betting state 
 # State type :    state    ->  ObservedState  ->  Belief states  -> policies and Transitions -> generate all possible states with transition probs -> policys and tranitions  ->  dealer policy applied -> goes to betting state with new utility
@@ -521,7 +541,9 @@ class DealerState:
     def generate_actions(self):
         '''
         this will generate the possible actions the dealer can take. since the dealer is deterministic in their policy there will only be one action returned
+        ['Hit','Stand']
         '''
+
         total = [0]
         for card in self.player_cards:
             if card.num == 'A':
@@ -546,8 +568,94 @@ class DealerState:
             else:
                 return CMD.STAND
 
+
+    #static for evaluation
+    @staticmethod
+    def evaluate_payout(player_cards, dealer_cards, bet):
+        player_sum = player_cards.set_sum()
+        dealer_sum = dealer_cards.set_sum()
+        payout = 0
+        #check for bust first. 
+        if player_sum > 21: 
+            payout = 0
+        #check if either has black jack
+        elif player_sum == 21 and player_cards.count() == 2:
+            #player has 21 with only 2 cards  Blackjack!
+            #check dealer
+            if dealer_sum == 21 and dealer_cards.count() == 2:
+                #tie they both have BlackJack 
+                #player get thier money back in this case
+                payout = bet
+            else:
+                #player wins with blackjack so 2.5
+                payout =  bet * 2.5
+        #check for dealer blackjack
+        elif dealer_sum == 21 and dealer_cards.count() == 2:
+            payout = 0
+        #check dealer bust
+        elif dealer_sum > 21:
+            #regular win 
+            payout = bet * 2
+        #check for regular win
+        elif player_sum > dealer_sum: 
+            payout = bet * 2 
+        #tie
+        elif player_sum == dealer_sum:
+            payout = bet
+        elif player_sum < dealer_sum:
+            #loss. 
+            payout = 0
+        return payout
         
-    def generate_state(self):
+    def generate_state(self, action: str, max_bet: int, stop_high: int, stop_low: int):
         '''
             for each dealer action there is possible out comes for each of actions depending on what card they get either we return a dealer state or a bet state. 
+            Parameters: max_bet, stop_high, stop_low are used when generating betting states
+
+            returns [(state, probability), ... ]
+            where utility is the money in the new state. 
         '''
+        if action == 'Stand':
+            #dealer stand so evaluate who won and create a new bet state with an updated money. clear the table by adding dealer and player cards to the seen cards set
+            
+            payout = DealerState.evaluate_payout(self.player_cards,self.dealer_cards,self.bet)
+            # create new bet state
+            new_seen_cards = copy.deepcopy(self.seen_cards)
+            new_seen_cards.add_set(self.player_cards)
+            new_seen_cards.add_set(self.dealer_cards)
+            new_money = self.money + payout
+            state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low)
+            return [(state, 1)]
+        
+        if action == 'Hit':
+            # generate a new dealerstate object 
+            new_states = []
+
+            remaining_deck = CardSet(decks=self.decks)
+            remaining_deck.subtract_set(self.seen_cards)
+            remaining_deck.subtract_set(self.player_cards)
+            remaining_deck.subtract_set(self.dealer_cards)
+            for card in list(range(2,11)+['A']):
+                probability = 1 
+                probability = remaining_deck.probability_of_num[card]
+                # take a card out of seen cards
+                if remaining_deck.remove_card_value[card] == False:
+                    # a card is not able to be taken so skip this combination
+                    new_states.append((None,0))
+                    continue 
+                self.dealer_cards.add_card_value[card]
+                if self.dealer_cards.set_sum() <= 21:
+                    new_state = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                else:
+                    #if dealer busts return a bet state
+                    payout = DealerState.evaluate_payout(self.player_cards,self.dealer_cards,self.bet)
+                    new_seen_cards = copy.deepcopy(self.seen_cards)
+                    #round is over so add these cards to the seen cards
+                    new_seen_cards.add_set(self.player_cards)
+                    new_seen_cards.add_set(self.dealer_cards)
+                    new_money = self.money + payout
+                    new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low)
+                new_states.append((new_state, probability))
+                self.dealer_cards.remove_card_value[card]
+            
+            return new_states
