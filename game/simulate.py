@@ -471,7 +471,11 @@ class BeliefState:
                 total = [int(card.num) + t for t in total]
         total = [t for t in total if t <= 21]
 
-        available = [CMD.HIT, CMD.STAND]
+        available = [CMD.STAND]
+        for t in total:
+            if t < 20:
+                available.append(CMD.HIT)
+                break
         sums = set(total)
         if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
             available.append(CMD.DOUBLE)
@@ -482,7 +486,7 @@ class BeliefState:
 
         #update a flag based on ???
 
-        if hitFlag:
+        if hitFlag and CMD.HIT in available:
             return 'h'
         elif doubleFlag and CMD.DOUBLE in available:
             return 'd'
