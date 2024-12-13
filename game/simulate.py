@@ -346,7 +346,7 @@ class ObservedState:
     
     
              
-    def generate_belief_states(self, card: Card):
+    def generate_belief_states(self, num):
         '''give the dealer a card and then would say the belief probability is the 
         chance of that card being pulled from remaining unseen cards '''
 
@@ -355,15 +355,15 @@ class ObservedState:
         possible.subtract_set(self.player_cards)
         possible.subtract_set(self.dealer_cards)
 
-        num = card.num
+        #num = card.num
 
         if num == 'J' or num == 'Q' or num == 'K':
             belief = possible.probability_of_num(10)
         else:
-            belief = possible.probability_of_num(card.num)
+            belief = possible.probability_of_num(num)
 
-        self.seen_cards.add_card_obj(card)
-        self.dealer_cards.add_card_obj(card)
+        #self.seen_cards.add_card_obj(card)
+        self.dealer_cards.add_card_value(num)
             
         state = BeliefState(self.money, self.decks, self.bet, self.seen_cards, self.player_cards, self.dealer_cards)
         
