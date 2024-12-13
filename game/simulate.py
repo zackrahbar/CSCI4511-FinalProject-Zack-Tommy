@@ -483,4 +483,29 @@ class DealerState:
 
 
     '''
+
+    def __init__(self, money: int, decks: int, bet:int, seen_cards:CardSet, player_cards:CardSet, dealer_cards:CardSet):
+        '''
+            create a new dealer state where a dealer will take an action. this state will generate new dealer states in the case where they have to hit again. 
+            if the dealer stood on the soft 17 then will generate a bet state where the player's money is updated according to if they won.
+
+            create new beleif state. this is a state where we have taken a belief based on the observed game state. (We assume we know what the dealers card is)
+            from this state the player will choose actions of hit stand or double. 
+        '''
+        self.money = money
+        self.decks = decks
+        self.bet = bet
+        self.seen_cards = copy.deepcopy(seen_cards)
+        self.player_cards = copy.deepcopy(player_cards)
+        self.dealer_cards = copy.deepcopy(dealer_cards)
     
+    def generate_actions(self):
+        '''
+        this will generate the possible actions the dealer can take. since the dealer is deterministic in their policy there will only be one action returned
+        '''
+
+        
+    def generate_state(self):
+        '''
+            for each dealer action there is possible out comes for each of actions depending on what card they get either we return a dealer state or a bet state. 
+        '''
