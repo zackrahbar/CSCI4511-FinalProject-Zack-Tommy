@@ -39,7 +39,14 @@ class Simulator:
             self.backprop(bet_leaf)
 
     
-
+    def turn(self, player_cards: CardSet, dealer_cards: CardSet, seen_cards: CardSet, decks: int, money:int, bet: int ):
+        '''
+            player cards -> cards in player hand
+            dealer_cards -> cards in dealer hand (one 1 card)
+            seen_cards -> cards seen in prevous rounds 
+            
+        '''
+        pass
 
 
     @staticmethod
@@ -132,7 +139,11 @@ class Simulator:
     # so each child will update this with their own value times their tansition probablity.
     
 
-    def backprop(self, bet_state:BetState):
+    def backprop(self, bet_state:BetState, depth= 'Bet Root'):
+        '''
+        depth = 'Bet Root'
+        depth = 'Observed State' will stop propigating at observed state for decison tree.  
+        '''
         #go from bet state to dealer state
         prev_state = bet_state
         next_state = prev_state.parent 
@@ -170,6 +181,11 @@ class Simulator:
         
         #update the observed state from the belief state
         next_state.weighted_value_total += prev_state.weighted_value_total * prev_state.parent_tuple[2]
+
+        #stop early if only observed 
+        if depth != 'Bet Root':
+            return
+
 
         prev_state = next_state
         next_state = next_state.parent
