@@ -218,7 +218,9 @@ class BetState:
         self.child = []
         self.parent = parent
         self.childtotal = 0 
-        self.weighted_value_total = 0
+        self.weighted_value_high = 0
+        self.weighted_value_med = 0
+        self.weighted_value_low = 0
         self.parent_tuple = (parent, action_taken_here, transition_prob)
 
     def set_weighted_value_total(self,value):
@@ -251,9 +253,9 @@ class BetState:
             bet_med = percent(self.max_bet, .40)
             bet_low = percent(self.max_bet, .10)
         actions = [
-                   'bet '+ str(bet_high),
-                   'bet '+ str(bet_med),
-                   'bet '+ str(bet_low),
+                   'betH '+ str(bet_high),
+                   'betM '+ str(bet_med),
+                   'betL '+ str(bet_low),
                    ]
         if self.money > self.stop_high:
             actions = ['Stop Success']
@@ -421,7 +423,9 @@ class BeliefState:
         self.child = []
         self.parent = parent
         self.childtotal = 0 
-        self.weighted_value_total = 0
+        self.weighted_value_hit = 0
+        self.weighted_value_stand = 0
+        self.weighted_value_double = 0
         self.parent_tuple = (parent, action_taken_here, transition_prob)
 
     def set_weighted_value_total(self,value):
@@ -725,6 +729,7 @@ class DealerState:
                     new_money = self.money + payout
                     new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, 'h', probability)
                 new_states.append((new_state, probability))
+                remaining_deck.add_card_value[card]
                 self.dealer_cards.remove_card_value[card]
             
             self.child.extend(new_states)

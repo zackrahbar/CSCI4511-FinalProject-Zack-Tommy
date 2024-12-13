@@ -132,15 +132,72 @@ class Simulator:
     # so each child will update this with their own value times their tansition probablity.
     
 
-    def backprop(self, state):
+    def backprop(self, bet_state:BetState):
+        #go from bet state to dealer state
+        prev_state = bet_state
+        next_state = prev_state.parent 
+        while (isinstance(next_state, DealerState)):
+            #dealer State
+            next_state.value = next_state.value + (prev_state.money * prev_state.parent_tuple[2])
+            #iterate forward
+            prev_state = next_state
+            next_state = next_state.parent
+        
+        #next_state is now a belief state and prev_state is a dealer State
+        while(isinstance(next_state,BeliefState)):
+            #next state is belief state
+            action = prev_state.parent_tuple[1]
+            #get prev_state's value
+            value = 0
+            if isinstance(prev_state,DealerState):
+                value = prev_state.weighted_value_total
+            else:
+                value = max(prev_state.weighted_value_hit, prev_state.weighted_value_stand, prev_state.weighted_value_double)
+            if action == 'h':
+                next_state.weighted_value_hit += (prev_state.parent_tuple[2] * value)
+            elif action == 's':
+                next_state.weighted_value_stand += (prev_state.parent_tuple[2] * value)
+            elif action == 'd':
+                next_state.weighted_value_stand += (prev_state.parent_tuple[2] * value)
+            else:
+                print("error in backprob 2nd while", file=sys.stderr)
+                return False
+            #iterate forward
+            prev_state = next_state            
+            next_state = next_state.parent
 
-        starting = state
+        assert isinstance(next_state,ObservedState), "Error not observed state"
+        
+        #update the observed state from the belief state
+        next_state.weighted_value_total += prev_state.weighted_value_total * prev_state.parent_tuple[2]
 
-        while not isinstance(starting.parent, BetState):
-            #update weigheted value of parent
-            starting.parent.weighted_value_total = starting.parent.weighted_value_total + (starting.weighted_value_total * starting.parent_tuple[2])
+        prev_state = next_state
+        next_state = next_state.parent
 
-            #update child counter of parent
-            starting.parent.childtotal = starting.parent.childtotal + 1
+        assert isinstance(next_state,BetState), "Error not bet State"
+        [action, bet] = prev_state.parent_tuple[1].split(' ', 1)
+        
+        if(action == 'betH'): 
+            #high bet 
+            next_state.weighted_value_high += prev_state.weighted_value_total*prev_state.parent_tuple[2]
+        elif action == 'betM':
+            next_state.weighted_value_med += prev_state.weighted_value_total*prev_state.parent_tuple[2]
+        elif action == 'betL':
+            next_state.weighted_value_low += prev_state.weighted_value_total*prev_state.parent_tuple[2]
+        else: 
+            print("error in backprob action not found", file=sys.stderr)
+            return False
+        
 
-            starting = starting.parent
+
+        # starting = state
+
+        # while not isinstance(starting.parent, BetState):
+        #     #update weigheted value of parent
+        #     starting.parent.weighted_value_total = starting.parent.weighted_value_total + (starting.weighted_value_total * starting.parent_tuple[2])
+
+        #     #update child counter of parent
+        #     starting.parent.childtotal = starting.parent.childtotal + 1
+
+        #     starting = starting.parent
+
