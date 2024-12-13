@@ -215,10 +215,10 @@ class BetState:
         self.max_bet = max_bet
         self.stop_high = stop_high
         self.stop_low = stop_low
-        self.child = None
+        self.child = []
 
     def set_child(self, child):
-        self.child = child
+        self.child.extend(child)
 
     def generate_actions(self):
         # generates betting actions 
@@ -327,6 +327,7 @@ class BetState:
             remaining_deck.add_card_value[c1]
 
         #return new states with thier transition probabilities
+        self.child.append(new_states)
         return new_states
 
 class ObservedState:
@@ -347,10 +348,10 @@ class ObservedState:
         self.seen_cards = copy.deepcopy(seen_cards) # includes only cards from previous rounds and this rounds cards that are not the dealers or the players cards
         self.player_cards = copy.deepcopy(player_cards) # cards currently in our hand
         self.dealer_cards = copy.deepcopy(dealer_cards) # cards observed in dealers hand (so the face up one)
-        self.child = None
+        self.child = []
 
     def set_child(self, child):
-        self.child = child
+        self.child.extend(child)
     
              
     def generate_belief_states(self, card: Card):
@@ -374,7 +375,7 @@ class ObservedState:
             
         state = BeliefState(self.money, self.decks, self.bet, self.seen_cards, self.player_cards, self.dealer_cards)
         
-
+        self.child.append((state,belief))
         return (state, belief)
 
 
@@ -398,10 +399,10 @@ class BeliefState:
         self.seen_cards = copy.deepcopy(seen_cards)
         self.player_cards = copy.deepcopy(player_cards)
         self.dealer_cards = copy.deepcopy(dealer_cards)
-        self.child = None
+        self.child = []
 
     def set_child(self, child):
-        self.child = child
+        self.child.extend(child)
 
 
     def generate_next_states(self, action):
@@ -437,6 +438,7 @@ class BeliefState:
                                 self.player_cards.add_card_value(value)
                                 self.seen_cards.add_card_value(value)
                                 dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                                self.child.append(dealer)
                                 return dealer
                             else:
                                 self.player_cards.add_card_value(value)
@@ -457,6 +459,7 @@ class BeliefState:
                                     self.player_cards.add_card_value(value)
                                     self.seen_cards.add_card_value(value)
                                     dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                                    self.child.append(dealer)
                                     return dealer
 
                     if len(total) == 2:
@@ -466,6 +469,7 @@ class BeliefState:
                                     self.player_cards.add_card_value(value)
                                     self.seen_cards.add_card_value(value)
                                     dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                                    self.child.append(dealer)
                                     return dealer
                                 else:
                                     self.player_cards.add_card_value(value)
@@ -486,12 +490,15 @@ class BeliefState:
                                     self.player_cards.add_card_value(value)
                                     self.seen_cards.add_card_value(value)
                                     dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                                    self.child.append(dealer)
                                     return dealer
 
+            self.child.extend(returning)
             return returning
 
         elif action == 's':
             dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+            self.child.append(dealer)
             return dealer
 
         elif action == 'd':
@@ -547,10 +554,10 @@ class DealerState:
         self.seen_cards = copy.deepcopy(seen_cards)
         self.player_cards = copy.deepcopy(player_cards)
         self.dealer_cards = copy.deepcopy(dealer_cards)
-        self.child = None
+        self.child = []
 
     def set_child(self, child):
-        self.child = child
+        self.child.extend(child)
     
     def generate_actions(self):
         '''
@@ -672,4 +679,5 @@ class DealerState:
                 new_states.append((new_state, probability))
                 self.dealer_cards.remove_card_value[card]
             
+            self.child.extend(new_states)
             return new_states
