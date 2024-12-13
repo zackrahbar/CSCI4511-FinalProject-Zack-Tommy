@@ -458,8 +458,37 @@ class BeliefState:
             #IDK what to do here       
 
 
-    def generate_action():
-        return None
+    def generate_action(self):
+        total = [0]
+        for card in self.player_cards:
+            if card.num == 'A':
+                temp = [11 + t for t in total]
+                total = [1 + t for t in total]
+                total.extend(temp)
+            elif not card.num.isdigit():
+                total = [10 + t for t in total]
+            else:
+                total = [int(card.num) + t for t in total]
+        total = [t for t in total if t <= 21]
+
+        available = [CMD.HIT, CMD.STAND]
+        sums = set(total)
+        if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
+            available.append(CMD.DOUBLE)
+
+        hitFlag = False
+        standFlag = False
+        doubleFlag = False
+
+        #update a flag based on ???
+
+        if hitFlag:
+            return 'h'
+        elif doubleFlag and CMD.DOUBLE in available:
+            return 'd'
+        else:
+            return 's'
+
         
 class DealerState:
     '''
