@@ -359,7 +359,7 @@ class BeliefState:
         these actions could result staying in this state ( hit ) or transitioning to a dealer state ( stand or hit and bust) 
 
     '''
-    def generate_next_states(self):
+    def generate_next_states(self, action):
         '''
 
         returns an array of future states [(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability)] 
@@ -380,8 +380,6 @@ class BeliefState:
             else:
                 total = [int(card.num) + t for t in total]
         total = [t for t in total if t <= 21]
-
-        action = self.generate_action()
 
         if action == 'h':
             returning = []
@@ -480,19 +478,7 @@ class BeliefState:
         if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
             available.append(CMD.DOUBLE)
 
-        hitFlag = False
-        standFlag = False
-        doubleFlag = False
-
-        #update a flag based on ???
-
-        if hitFlag and CMD.HIT in available:
-            return 'h'
-        elif doubleFlag and CMD.DOUBLE in available:
-            return 'd'
-        else:
-            return 's'
-
+        return available
         
 class DealerState:
     '''
