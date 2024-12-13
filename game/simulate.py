@@ -359,6 +359,7 @@ class BeliefState:
         these actions could result staying in this state ( hit ) or transitioning to a dealer state ( stand or hit and bust) 
 
     '''
+
     def __init__(self, money: int, decks: int, bet:int, seen_cards:CardSet, player_cards:CardSet, dealer_cards:CardSet):
         '''
             create new beleif state. this is a state where we have taken a belief based on the observed game state. (We assume we know what the dealers card is)
@@ -372,7 +373,9 @@ class BeliefState:
         self.dealer_cards = copy.deepcopy(dealer_cards)
 
 
-    def generate_next_states(self):
+
+    def generate_next_states(self, action):
+
         '''
 
         returns an array of future states [(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability)] 
@@ -393,8 +396,6 @@ class BeliefState:
             else:
                 total = [int(card.num) + t for t in total]
         total = [t for t in total if t <= 21]
-
-        action = self.generate_action()
 
         if action == 'h':
             returning = []
@@ -471,8 +472,29 @@ class BeliefState:
             #IDK what to do here       
 
 
-    def generate_action():
-        return None
+    def generate_action(self):
+        total = [0]
+        for card in self.player_cards:
+            if card.num == 'A':
+                temp = [11 + t for t in total]
+                total = [1 + t for t in total]
+                total.extend(temp)
+            elif not card.num.isdigit():
+                total = [10 + t for t in total]
+            else:
+                total = [int(card.num) + t for t in total]
+        total = [t for t in total if t <= 21]
+
+        available = [CMD.STAND]
+        for t in total:
+            if t < 20:
+                available.append(CMD.HIT)
+                break
+        sums = set(total)
+        if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
+            available.append(CMD.DOUBLE)
+
+        return available
         
 class DealerState:
     '''
