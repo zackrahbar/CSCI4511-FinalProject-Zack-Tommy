@@ -28,6 +28,10 @@ class Simulator:
         # can add filtering here inbetween steps. by sorting the nodes. using .sort(reverse=True, key= lambda x: x[1]) sorts so highest probability is at front. 
         observed_state_tuples = Simulator.get_observed_states_from_bet_state(bet_state, 1.0)
 
+    
+
+
+    def turn(self):
         belief_state_tuples = Simulator.get_belief_states_from_observed_states(observed_state_tuples)
 
         dealer_state_tuples = Simulator.get_dealer_states_from_belief_states(belief_state_tuples)
@@ -128,6 +132,15 @@ class Simulator:
     # so each child will update this with their own value times their tansition probablity.
     
 
-    def turn(self):
-        '''
-        '''
+    def backprop(self, state):
+
+        starting = state
+
+        while not isinstance(starting.parent, BetState):
+            #update weigheted value of parent
+            starting.parent.weighted_value_total = starting.parent.weighted_value_total + (starting.weighted_value_total * starting.parent_tuple[2])
+
+            #update child counter of parent
+            starting.parent.childtotal = starting.parent.childtotal + 1
+
+            starting = starting.parent
