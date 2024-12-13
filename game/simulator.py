@@ -26,19 +26,19 @@ class Simulator:
 
         # exploring down the tree. 
         # can add filtering here inbetween steps. by sorting the nodes. using .sort(reverse=True, key= lambda x: x[1]) sorts so highest probability is at front. 
-        observed_state_tuples = Simulator.get_observed_states_from_bet_state(bet_state, 1.0)
+        self.observed_state_tuples = Simulator.get_observed_states_from_bet_state(bet_state, 1.0)
 
-    
+        self.belief_state_tuples = Simulator.get_belief_states_from_observed_states(self.observed_state_tuples)
 
+        self.dealer_state_tuples = Simulator.get_dealer_states_from_belief_states(self.belief_state_tuples)
 
-    def turn(self):
-        belief_state_tuples = Simulator.get_belief_states_from_observed_states(observed_state_tuples)
-
-        dealer_state_tuples = Simulator.get_dealer_states_from_belief_states(belief_state_tuples)
-
-        final_bet_states = self.get_bet_states_from_dealer_states(dealer_state_tuples)
+        self.final_bet_states = self.get_bet_states_from_dealer_states(self.dealer_state_tuples)
 
         #todo call backprop on the bet states. 
+        for bet_leaf in self.final_bet_states:
+            self.backprop(bet_leaf)
+
+    
 
 
 
