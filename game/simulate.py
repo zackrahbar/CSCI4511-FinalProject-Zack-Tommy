@@ -215,6 +215,10 @@ class BetState:
         self.max_bet = max_bet
         self.stop_high = stop_high
         self.stop_low = stop_low
+        self.child = None
+
+    def set_child(self, child):
+        self.child = child
 
     def generate_actions(self):
         # generates betting actions 
@@ -343,7 +347,10 @@ class ObservedState:
         self.seen_cards = copy.deepcopy(seen_cards) # includes only cards from previous rounds and this rounds cards that are not the dealers or the players cards
         self.player_cards = copy.deepcopy(player_cards) # cards currently in our hand
         self.dealer_cards = copy.deepcopy(dealer_cards) # cards observed in dealers hand (so the face up one)
-    
+        self.child = None
+
+    def set_child(self, child):
+        self.child = child
     
              
     def generate_belief_states(self, card: Card):
@@ -391,7 +398,10 @@ class BeliefState:
         self.seen_cards = copy.deepcopy(seen_cards)
         self.player_cards = copy.deepcopy(player_cards)
         self.dealer_cards = copy.deepcopy(dealer_cards)
+        self.child = None
 
+    def set_child(self, child):
+        self.child = child
 
 
     def generate_next_states(self, action):
@@ -537,6 +547,10 @@ class DealerState:
         self.seen_cards = copy.deepcopy(seen_cards)
         self.player_cards = copy.deepcopy(player_cards)
         self.dealer_cards = copy.deepcopy(dealer_cards)
+        self.child = None
+
+    def set_child(self, child):
+        self.child = child
     
     def generate_actions(self):
         '''
