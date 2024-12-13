@@ -424,67 +424,64 @@ class BeliefState:
                     if len(total) == 1:
                         if value != 'A':
                             if value + total[0] >= 21:
-                                dealer = None
-                                #set to a dealerState
+                                self.player_cards.add_card_value(value)
+                                self.seen_cards.add_card_value(value)
+                                dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
                                 return dealer
                             else:
                                 self.player_cards.add_card_value(value)
-                                belief = None
-                                #set to beliefState
+                                self.seen_cards.add_card_value(value)
+                                belief = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
                                 returning.append(belief)
                         else:
                                 low_ace = total[0] + 1
                                 high_ace = total[0] + 11
                                 
-                                if low_ace <= 21:
-                                    self.player_cards.add_card_value(1)
-                                    belief = None  # TODO: Set to specific belief state
-                                    returning.append(belief)
-                                
-                                if high_ace <= 21:
-                                    self.player_cards.add_card_value(11)
-                                    belief = None  # TODO: Set to specific belief state
+                                if low_ace <= 21 or high_ace <= 21:
+                                    self.player_cards.add_card_value(value)
+                                    self.seen_cards.add_card_value(value)
+                                    belief = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
                                     returning.append(belief)
                                 
                                 if low_ace > 21 and high_ace > 21:
-                                    dealer = None  # TODO: Set to specific dealer state
+                                    self.player_cards.add_card_value(value)
+                                    self.seen_cards.add_card_value(value)
+                                    dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
                                     return dealer
 
                     if len(total) == 2:
                         for t in total:
                             if value != 'A':
                                 if value + t >= 21:
-                                    dealer = None
-                                    #set to a dealerState
+                                    self.player_cards.add_card_value(value)
+                                    self.seen_cards.add_card_value(value)
+                                    dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
                                     return dealer
                                 else:
                                     self.player_cards.add_card_value(value)
-                                    belief = None
-                                    #set to beliefState
+                                    self.seen_cards.add_card_value(value)
+                                    belief = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
                                     returning.append(belief)
                             else:
-                                    low_ace = t + 1
-                                    high_ace = t + 11
-                                    
-                                    if low_ace < 21:
-                                        self.player_cards.add_card_value(1)
-                                        belief = None  # TODO: Set to specific belief state
-                                        returning.append(belief)
-                                    
-                                    if high_ace < 21:
-                                        self.player_cards.add_card_value(11)
-                                        belief = None  # TODO: Set to specific belief state
-                                        returning.append(belief)
-                                    
-                                    if low_ace >= 21 or high_ace >= 21:
-                                        dealer = None  # TODO: Set to specific dealer state
-                                        return dealer
+                                low_ace = total[0] + 1
+                                high_ace = total[0] + 11
+                                
+                                if low_ace <= 21 or high_ace <= 21:
+                                    self.player_cards.add_card_value(value)
+                                    self.seen_cards.add_card_value(value)
+                                    belief = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                                    returning.append(belief)
+                                
+                                if low_ace > 21 and high_ace > 21:
+                                    self.player_cards.add_card_value(value)
+                                    self.seen_cards.add_card_value(value)
+                                    dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
+                                    return dealer
 
             return returning
 
         elif action == 's':
-            dealer = None
-            #set to a dealerState
+            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards)
             return dealer
 
         elif action == 'd':
@@ -546,7 +543,31 @@ class DealerState:
         this will generate the possible actions the dealer can take. since the dealer is deterministic in their policy there will only be one action returned
         ['Hit','Stand']
         '''
-    
+
+        total = [0]
+        for card in self.player_cards:
+            if card.num == 'A':
+                temp = [11 + t for t in total]
+                total = [1 + t for t in total]
+                total.extend(temp)
+            elif not card.num.isdigit():
+                total = [10 + t for t in total]
+            else:
+                total = [int(card.num) + t for t in total]
+        total = [t for t in total if t <= 21]
+
+        if len(total) == 2:
+            t = min(total[0], total[1])
+            if t < 17:
+                return CMD.HIT
+            else:
+                return CMD.STAND
+        else:
+            if total[0] < 17:
+                return CMD.HIT
+            else:
+                return CMD.STAND
+
 
     #static for evaluation
     @staticmethod
