@@ -250,8 +250,9 @@ class BetState:
 
         return actions
         
-    def generate_next_states(self,action):
+    def generate_next_states(self,action: str):
         '''
+        list[tuple[ObservedState,float]]
         genrate a list of possible next states and their transition probabilities. 
         [(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability)]
         transition probabilities are based off cards remaining in the deck
@@ -259,10 +260,10 @@ class BetState:
         returns either observed states or will return betState in the case of Stop Success or Stop Failure 
         
         '''
-        if action[0] == 'Stop Success':
+        if action == 'Stop Success':
             #error should have stopped here
             print('Tree recursion error generate next states in BetState, success', file= sys.stderr)
-        if action[0] == 'Stop Failure':
+        if action == 'Stop Failure':
             #error should have stopped here
             print('Tree recursion error generate next states in BetState, failure', file= sys.stderr)
         [action, bet_amount] = action.split(' ', 1)
