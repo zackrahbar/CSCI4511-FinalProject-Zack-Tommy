@@ -503,14 +503,14 @@ class BeliefState:
                 total = [int(card.num) + t for t in total]
         total = [t for t in total if t <= 21]
 
-        available = [CMD.STAND]
+        available = ['s']
         for t in total:
             if t < 20:
-                available.append(CMD.HIT)
+                available.append('h')
                 break
         sums = set(total)
         if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
-            available.append(CMD.DOUBLE)
+            available.append('d')
 
         return available
         
