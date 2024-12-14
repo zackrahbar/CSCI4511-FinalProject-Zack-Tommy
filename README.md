@@ -8,6 +8,7 @@ Software and Hardware Requirements:
 How to run:
   cd into the game folder
   python game.py -f configs/___.YAML 2> err.log
+    once running, the game will remain on the place a bet screen for a few minutes, this is normal and the game will continue after a brief waiting period 
   replace the ____ with your desired file, for example 1user1rand.yaml creates a game with one random player and one human player
   We have created 4 config files that are best to showcase our work:
     1: 1user1POMDP.YAML creates 1 human player and 1 POMDP player
