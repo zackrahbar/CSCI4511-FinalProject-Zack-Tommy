@@ -464,8 +464,47 @@ class BeliefState:
             self.child.extend(child)
             self.childtotal = self.childtotal + len(child)  
 
+    def generate_next_states(self,action):
+        '''
+        possible actions: 'h' 's' 'd'
+        returns an array of future states [(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability),(Next_state, transition_probability)] 
+        next state is either either another belief state or a dealer state (stand or hit->bust)
+        transition proabability is the based off the remaining cards in the deck and the probability for that card. using cardset functions'''
+        # get remaining deck 
+        remaining_deck = CardSet(decks=self.decks)
+        
+        remaining_deck.subtract_set(self.seen_cards)
+        remaining_deck.subtract_set(self.player_cards)
+        remaining_deck.subtract_set(self.dealer_cards)
 
-    def generate_next_states(self, action):
+        new_states = []
+        if action == 'h':
+            #hit
+            for card in list(range(2,11)) + ['A']:
+                #update prob
+                probability = remaining_deck.probability_of_num(card) # this is now the transition probability for this state from previous state given this action
+                # take a card out of seen cards and add to dealer cards
+                if remaining_deck.remove_card_value(card) == False:
+                # a card is not able to be taken so skip this combination
+                    new_states.append((None,0))
+                    continue 
+                self.player_cards.add_card_value(card)
+                #if sum is too high then make dealer state. if under 21 then make belief state
+                if self.player_cards.set_sum() >= 21:
+                    new_state = DealerState(self.money,self.decks,self.bet, self.seen_cards, self.player_cards, self.dealer_cards,self,'h',probability)
+                else:
+                    new_state = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards,self,'h',probability)
+                new_states.append((new_state, probability))
+                # reset seen cards and player cards. 
+                self.player_cards.remove_card_value(card)
+                remaining_deck.add_card_value(card)
+        elif action == 's':
+            new_state = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards,self,'s',1)
+            new_states.append((new_state, 1))
+        
+
+
+    def generate_next_states_OLD(self, action):
 
         '''
 
@@ -476,24 +515,30 @@ class BeliefState:
 
         values = ['A',2,3,4,5,6,7,8,9,10]
 
-        total = [0]
-        for card in self.player_cards:
-            if card.num == 'A':
-                temp = [11 + t for t in total]
-                total = [1 + t for t in total]
-                total.extend(temp)
-            elif not card.num.isdigit():
-                total = [10 + t for t in total]
-            else:
-                total = [int(card.num) + t for t in total]
-        total = [t for t in total if t <= 21]
-
+        # total = [0]
+        # for card in self.player_cards:
+        #     if card.num == 'A':
+        #         temp = [11 + t for t in total]
+        #         total = [1 + t for t in total]
+        #         total.extend(temp)
+        #     elif not card.num.isdigit():
+        #         total = [10 + t for t in total]
+        #     else:
+        #         total = [int(card.num) + t for t in total]
+        # total = [t for t in total if t <= 21]
+        total = [self.player_cards.set_sum()]
         #to get sum of cardset use self.player_cards.set_sum() 
 
+        #VERIFY THIS FIX WORKS
+        if self.player_cards.cards['A'] == 1 and self.player_cards.count() == 2:
+            total.insert(0,(self.player_cards.set_sum()-10))
+
+        
+        total.sort()
         if action == 'h':
             returning = []
             for value in values:
-                if self.player_cards[value] > 0:
+                if self.player_cards.cards[value] > 0:
                     #TODO modify this to include the probability of it being hit 
                     prob = self.player_cards.probability_of_num(value)
                     if len(total) == 1:
@@ -567,7 +612,7 @@ class BeliefState:
 
         elif action == 's':
             prob = 1
-            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 's',prob)
+            dealer = [DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 's',prob)]
             self.child.append(dealer)
             self.childtotal = self.childtotal + 1
             return dealer
@@ -577,7 +622,7 @@ class BeliefState:
             # double the bet and decrease the money and 
 
             prob = 1
-            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 'd',prob)
+            dealer = [DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 'd',prob)]
             self.child.append(dealer)
             self.childtotal = self.childtotal + 1
             return dealer

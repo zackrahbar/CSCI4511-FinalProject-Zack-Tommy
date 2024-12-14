@@ -4,6 +4,11 @@ Players
 [{'mode': 'POMDP', 'start_money': 1000, 'stop_loss_high': 2000, 'stop_loss_low': 250}]
 creating deck with length 8
 Bet state actions:  ['betH 100']
+Done get_observed_states_from_bet_state
+Done get_belief_states_from_observed_states
+Done get_dealer_states_from_belief_states
+Done get_bet_states_from_dealer_states
+In betting value:  0  returning action: l
 Traceback (most recent call last):
   File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 299, in <module>
     curses.wrapper(main)	
@@ -13,16 +18,10 @@ Traceback (most recent call last):
     game.run()
   File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 39, in run
     self.gameplay()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 88, in gameplay
-    self._betting()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 106, in _betting
-    bet = player.make_bet(self.config.players[int(player.number[1])-1]['stop_loss_high'],self.config.players[int(player.number[1])-1]['stop_loss_low'])
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/solver.py", line 91, in make_bet
-    bet = self.simulator.betting(state)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/simulator.py", line 33, in betting
-    self.dealer_state_tuples = Simulator.get_dealer_states_from_belief_states(self.belief_state_tuples)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/simulator.py", line 158, in get_dealer_states_from_belief_states
-    new_states = state.generate_next_states(action)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/simulate.py", line 480, in generate_next_states
-    for card in self.player_cards:
-TypeError: 'CardSet' object is not iterable
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 92, in gameplay
+    self._turn()
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 156, in _turn
+    cmd = player.get_options(self.players, self.dealer)
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/solver.py", line 59, in get_options
+    if card not in self.seen and card.facedown is False:
+TypeError: argument of type 'CardSet' is not iterable
