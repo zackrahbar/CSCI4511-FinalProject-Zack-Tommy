@@ -19,7 +19,7 @@ class POMDPPlayer(Player):
         # Initialize Q-table
         self.q_table = {}
 
-        self.seen = []
+        self.seen = CardSet()
         self.numdecks = numDecks
         self.numCards = self.numdecks * 52
         self.numSeen = 0
@@ -30,17 +30,19 @@ class POMDPPlayer(Player):
             for num in list(range(2,11)) + ['J','Q','K','A']:
                 for suit in SUIT:
                     self.allCards.append(Card(suit, num))
+
+        self.deckcards = CardSet(self.allCards)
 		
-    def make_a_move(self, options):
+    def make_a_move(self, options, possible, dealers, playerhas):
         #choose an action via q learning 
-        action = None
+        action = self.simulator.Turn(playerhas, dealers, self.seen, self.numdecks, self.money, self.bet)
         return action
     
     def update_seen(self):
         self.numSeen = self.numSeen + 1
 
         if self.numSeen == self.numCards:
-            self.seen = []
+            self.seen = CardSet()
 
     def get_options(self, players: Player, dealer: Dealer):
         #OVERWRITES PLAYERS METHOD
@@ -48,29 +50,32 @@ class POMDPPlayer(Player):
         options = []
 
         #add cards on the table to seen 
-        ontable = []
+        playerhas = CardSet()
+        dealers = CardSet()
         numontable = 0
 
         for p in players:
             for card in p.cards:
                 if card not in self.seen and card.facedown is False:
-                    self.seen.append(card)
+                    self.seen.add_card_obj(card)
                     self.update_seen()
-                    ontable.append(card)
+                    playerhas.add_card_obj(card)
                     numontable = numontable + 1
         
         for card in dealer.cards:
             if card not in self.seen and card.facedown is False:
-                self.seen.append(card)
+                self.seen.add_card_obj(card)
                 self.update_seen()
-                ontable.append(card)
+                dealers.add_card_obj(card)
                 numontable = numontable + 1
 
         #possible cards to be dealt out next 
-        possible = self.allCards - self.seen
+        possible = CardSet(self.allCards)
+
+        possible.subtract_set(self.seen)
 
         #CALLS MAKE A MOVE PASSING IN THE POSSIBLE ACTIONS AND RETURNS WHAT THAT RETURNS 
-        return self.make_a_move(options)
+        return self.make_a_move(options, possible, dealers, playerhas)
 		
     def make_bet(self, high, low):
         #OVERWRITES PLAYERS METHOD
