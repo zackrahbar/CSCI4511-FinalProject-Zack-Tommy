@@ -101,6 +101,8 @@ class Simulator:
         highest = (total_weighted_value_hit, total_weighted_value_stand, total_weighted_value_double)
         assert highest != 0, "Error highest should not be zero"
         
+        action = 's'
+
         if highest == total_weighted_value_hit:
             #hit is best
             action = 'h'
@@ -109,7 +111,7 @@ class Simulator:
         if highest == total_weighted_value_double:
             action = 'd'
         
-        print('In turn highest value: ', highest, ' returning action:', action, ' |values Hit: ', total_weighted_value_hit, ' stand: ', total_weighted_value_stand,' double: ', total_weighted_value_double, file = sys.stderr)
+        # print('In turn highest value: ', highest, ' returning action:', action, ' |values Hit: ', total_weighted_value_hit, ' stand: ', total_weighted_value_stand,' double: ', total_weighted_value_double, file = sys.stderr)
         return action
     @staticmethod
     def get_observed_states_from_bet_state(bet_state: BetState, percent_to_keep: float) -> list[tuple[ObservedState,float]]: 
