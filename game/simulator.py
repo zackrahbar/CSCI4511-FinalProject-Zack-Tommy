@@ -34,7 +34,8 @@ class Simulator:
 
         self.final_bet_states = self.get_bet_states_from_dealer_states(self.dealer_state_tuples)
 
-        #todo call backprop on the bet states. 
+        #todo call backprop on the bet states.  
+
         for bet_leaf in self.final_bet_states:
             self.backprop(bet_leaf)
 
@@ -85,7 +86,7 @@ class Simulator:
 
         new_final_bet_states = self.get_bet_states_from_dealer_states(new_dealer_state_tuples)
 
-        print('starting backprop', file=sys.stderr)
+        print('starting backprop len: ',len(new_final_bet_states), file=sys.stderr)
         for bet_leaf in new_final_bet_states:
             self.backprop(bet_leaf, depth= 'Observed State')
         
@@ -138,7 +139,7 @@ class Simulator:
             next_states.sort(reverse=True, key= lambda x: x[1])
             num_to_check = math.floor(len(next_states) * percent_to_keep)
             states_to_return.extend(next_states[0:num_to_check])
-        print('Done get_observed_states_from_bet_state', file=sys.stderr)
+        print('Done get_observed_states_from_bet_state len returing', len(states_to_return), file=sys.stderr)
         
         return states_to_return 
         
@@ -150,31 +151,96 @@ class Simulator:
             (state, belief) = state_tuple
             for num in list(range(2,11))+['A']:
                 belief_states.append(state.generate_belief_states(num))
-        print('Done get_belief_states_from_observed_states', file=sys.stderr)
+        print('Done get_belief_states_from_observed_states len returing', len(belief_states), file=sys.stderr)
         return belief_states
         
 
     @staticmethod
-    def get_dealer_states_from_belief_states(belief_states: list[tuple[BeliefState,float]])-> list[tuple[DealerState]]:
+    def get_dealer_states_from_belief_states(belief_states: list[tuple[BeliefState,float]], depth:list[int]=[3,2,1],iterations:int = 2)-> list[tuple[DealerState]]:
+        print('In get_dealer_states_from_belief_states---------------',file=sys.stderr)
+        
+
         belief_states_to_process = belief_states
         dealer_states_to_return = []
+        belief_states_v2 = []
+        
         while(len(belief_states_to_process) > 0):
-            #print('\t while loop len : ',len(belief_states_to_process),file=sys.stderr )
-            (state, belief_prob) = belief_states_to_process.pop()
-            #state = belief_states_to_process.pop()
-            actions = state.generate_action()
+            
+            belief_state_tuple = belief_states_to_process.pop()
+            (belief_state, prob) = belief_state_tuple
+
+            #the belief state we generate actions then for each action we generate next states
+            actions = belief_state.generate_action()
+            next_states = []
             for action in actions:
-                new_states = state.generate_next_states(action)
-                if new_states != None:
-                    for state_tuple in new_states:
-                        if state_tuple == None:
-                            continue
-                        if isinstance(state_tuple,DealerState):
-                            dealer_states_to_return.append(state_tuple)
-                        elif isinstance(state_tuple, BeliefState): 
-                            belief_states_to_process.append((state_tuple,1))
-        print('Done get_dealer_states_from_belief_states', file=sys.stderr)
+                next_states.extend(belief_state.generate_next_states(action))
+            
+            #now filter next_states into dealer states and belief states to process
+            
+            dealer_states_to_return.extend([(st,prob) for (st,prob) in next_states if isinstance(st,DealerState)])
+            new_belief_states = [(st,prob) for (st,prob) in next_states if isinstance(st,BeliefState)]
+            new_belief_states.sort(reverse=True, key= lambda x: x[1])
+            belief_states_v2.extend(new_belief_states[0:depth[2-iterations]])
+
+            if(len(belief_states_to_process) == 1 and iterations > 0 ):
+                iterations -= 1
+                print('adding belief states v2 to the queue len: ', len(belief_states_v2),file=sys.stderr)
+                belief_states_to_process.extend(belief_states_v2)
+                belief_states_v2 = []
+            # for next_state_tuple in next_states:
+                
+            #     (next_state, prob) = next_state_tuple
+            #     if next_state == None:
+            #         continue
+            #     # print("Filtering next state of type  ",type(next_state), file=sys.stderr)
+
+            #     if isinstance(next_state, DealerState):
+            #         dealer_states_to_return.append(next_state_tuple)
+            #     elif isinstance(next_state, BeliefState):
+            #         belief_states_v2.append(next_state_tuple)
+            #         #pass
+            #     else:
+            #         #ERROR
+            #         print("Next state type not found of type  ",type(next_state), file=sys.stderr)
+        print('remaining belief states to process len', len(belief_states_v2), file=sys.stderr)
+        print("returning get_dealer_states_from_belief_states len: ", len(dealer_states_to_return),file=sys.stderr)
         return dealer_states_to_return
+
+
+
+        # while(len(belief_states_to_process) > 0):
+        #     #print('\t while loop len : ',len(belief_states_to_process),file=sys.stderr )
+        #     (state, belief_prob) = belief_states_to_process.pop()
+        #     print('this state type: ', type(state), file=sys.stderr)
+        #     if isinstance(state, DealerState):
+        #         print('DealerState!!',file=sys.stderr)
+        #         dealer_states_to_return.append((state, belief_prob))
+        #         continue
+        #     #state = belief_states_to_process.pop()
+        #     actions = state.generate_action()
+        #     #print('\t\t actions', actions,file=sys.stderr)
+
+        #     for action in actions:
+        #         new_states = state.generate_next_states(action)
+        #         #print('\t\t len new_states', len(new_states),file=sys.stderr)
+
+        #         if new_states != None:
+        #             for state_tuple in new_states:
+
+        #                 if state_tuple == None:
+        #                     continue
+        #                 (state, prob) = state_tuple
+        #                 if state == None:
+        #                     continue
+        #                 if isinstance(state_tuple[0],DealerState):
+        #                     dealer_states_to_return.append(state_tuple)
+        #                 elif isinstance(state_tuple[0], BeliefState): 
+        #                     #belief_states_to_process.append(state_tuple)
+        #                     pass
+        #                 else:
+        #                     print('\t\t Unknown obj in tuple',type(state),file=sys.stderr)
+        # print('Done get_dealer_states_from_belief_states len returing:', len(dealer_states_to_return), file=sys.stderr)
+        # return dealer_states_to_return
 
 
                 
@@ -198,7 +264,7 @@ class Simulator:
                         dealer_states_to_process.append(state_tuple)
                     else:
                         bet_states.append(state_tuple)
-        print('Done get_bet_states_from_dealer_states', file=sys.stderr)
+        print('Done get_bet_states_from_dealer_states len returning',len (bet_states), file=sys.stderr)
                         
         return bet_states
                         
@@ -220,7 +286,7 @@ class Simulator:
         depth = 'Observed State' will stop propigating at observed state for decison tree.  
         '''
         #go from bet state to dealer state
-        print()
+        print('backprob bet state value', bet_state.weighted_value_high, file=sys.stderr)
         prev_state = bet_state
         next_state = prev_state.parent 
         prev_value = bet_state.weighted_value_high

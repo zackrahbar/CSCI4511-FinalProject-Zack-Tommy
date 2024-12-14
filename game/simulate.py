@@ -499,9 +499,10 @@ class BeliefState:
                 self.player_cards.remove_card_value(card)
                 remaining_deck.add_card_value(card)
         elif action == 's':
-            new_state = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards,self,'s',1)
+            new_state = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards,self,'s',1)
             new_states.append((new_state, 1))
         
+        return new_states
 
 
     def generate_next_states_OLD(self, action):
