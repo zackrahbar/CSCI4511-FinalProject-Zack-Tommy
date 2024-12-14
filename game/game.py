@@ -101,14 +101,6 @@ class Game:
 				self.display.set_turn(player)
 				bet = player.make_bet(0)
 				self.display.set_state("betting")
-			elif isinstance(player,Player):
-				self.display.set_turn(player)
-				bet = ""
-				while(not bet.isdigit() or int(bet) > player.money or int(bet) < BET_MIN or int(bet) > BET_MAX):
-					bet = self.screen.getstr()
-					self.display.set_state("betting_error")
-				self.display.set_state("betting")
-				player.make_bet(bet)
 			elif isinstance(player,POMDPPlayer):
 				self.display.set_turn(player)
 				bet = player.make_bet(self, self.config.players[player.number].stop_loss_high,self.config.players[player.number].stop_loss_low)
@@ -117,6 +109,14 @@ class Game:
 				if bet == -2:
 					player.lose()
 				self.display.set_state("betting")
+			else:
+				self.display.set_turn(player)
+				bet = ""
+				while(not bet.isdigit() or int(bet) > player.money or int(bet) < BET_MIN or int(bet) > BET_MAX):
+					bet = self.screen.getstr()
+					self.display.set_state("betting_error")
+				self.display.set_state("betting")
+				player.make_bet(bet)
 		self.display.set_turn(None)
 	
 	def _dealing(self):
