@@ -15,7 +15,7 @@ class Simulator:
         
         self.root_bet_state = bet_state
         bet_state_actions = bet_state.generate_actions()
-        print("Bet state actions: ", bet_state_actions, file=sys.stderr)
+        #print("Bet state actions: ", bet_state_actions, file=sys.stderr)
         if len(bet_state_actions) == 1 and bet_state_actions[0] == 'Stop Success':
             #return succcess
             return -1 
@@ -33,10 +33,12 @@ class Simulator:
         self.dealer_state_tuples = Simulator.get_dealer_states_from_belief_states(self.belief_state_tuples)
 
         self.final_bet_states = self.get_bet_states_from_dealer_states(self.dealer_state_tuples)
-
+        
         #todo call backprop on the bet states.  
 
         for bet_leaf in self.final_bet_states:
+            (st,prob) = bet_leaf
+            #print('bet state value: ', st.weighted_value_high, file=sys.stderr)
             self.backprop(bet_leaf)
 
         value = self.root_bet_state.weighted_value_high
@@ -52,7 +54,7 @@ class Simulator:
         else:
             action = 'm'
 
-        print('In betting value: ', value, ' returning action:', action, file = sys.stderr)
+        print('In root betting state value: ', value, ' returning action:', action, file = sys.stderr)
         return action
 
     def turn(self, player_cards: CardSet, dealer_cards: CardSet, seen_cards: CardSet, decks: int, money:int, bet: int ):
@@ -244,26 +246,32 @@ class Simulator:
 
 
                 
-    def get_bet_states_from_dealer_states(self, dealer_states: list[tuple[DealerState,float]]) -> list[BetState]:
+    def get_bet_states_from_dealer_states(self, dealer_states: list[tuple[DealerState,float]], depth:list[int]=[3,0,0],iterations:int = 2) -> list[BetState]:
+        print('Entering get_bet_states_from_dealer_states -------', file = sys.stderr)
         dealer_states_to_process = dealer_states
         bet_states = []
+        next_dealer_states =[]
         #use the list as a queue for the dealer states that need to be processed multiple times. 
         while(len(dealer_states_to_process) > 0 ):
             (this_state, prob) = dealer_states_to_process.pop()
             if this_state == None:
                 continue
             actions = this_state.generate_actions()
+            #print('actions: ', actions, file=sys.stderr)
             for action in actions:
                 next_states = this_state.generate_state(action, self.max_bet, self.stop_high, self.stop_low)
-                for state_tuple in next_states:
-                    (state, probability) = state_tuple
-                    #if the state is another dealer state add it to the 
-                    if state == None:
-                        continue
-                    elif isinstance(state,DealerState):
-                        dealer_states_to_process.append(state_tuple)
-                    else:
-                        bet_states.append(state_tuple)
+                new_dealer_states = []
+                bet_states.extend([(st,prob) for (st,prob) in next_states if isinstance(st,BetState)])
+                new_dealer_states = [(st,prob) for (st,prob) in next_states if isinstance(st,DealerState)]
+                new_dealer_states.sort(reverse=True,key=lambda x: x[1])
+                next_dealer_states.extend(new_dealer_states[0:depth[2-iterations]])
+
+            if(len(dealer_states_to_process) == 1 and iterations > 0 ):
+                iterations -= 1
+                print('adding next_dealer_states to the queue len: ', len(next_dealer_states),file=sys.stderr)
+                dealer_states_to_process.extend(next_dealer_states)
+                next_dealer_states = []
+
         print('Done get_bet_states_from_dealer_states len returning',len (bet_states), file=sys.stderr)
                         
         return bet_states
@@ -280,13 +288,14 @@ class Simulator:
     # so each child will update this with their own value times their tansition probablity.
     
 
-    def backprop(self, bet_state:BetState, depth= 'Bet Root'):
+    def backprop(self, bet_state_tuple:BetState, depth= 'Bet Root'):
         '''
         depth = 'Bet Root'
         depth = 'Observed State' will stop propigating at observed state for decison tree.  
         '''
+        (bet_state,prob) = bet_state_tuple
         #go from bet state to dealer state
-        print('backprob bet state value', bet_state.weighted_value_high, file=sys.stderr)
+        #print('backprob bet state value', bet_state.weighted_value_high, file=sys.stderr)
         prev_state = bet_state
         next_state = prev_state.parent 
         prev_value = bet_state.weighted_value_high
@@ -324,18 +333,19 @@ class Simulator:
         assert isinstance(next_state,ObservedState), "Error not observed state"
         
         #update the observed state from the belief state
-        next_state.weighted_value_total += prev_state.weighted_value_total * prev_state.parent_tuple[2]
+        best_val = max(prev_state.weighted_value_double,prev_state.weighted_value_hit,prev_state.weighted_value_stand)
+        next_state.weighted_value_total += best_val * prev_state.parent_tuple[2]
 
         #stop early if only observed 
         if depth != 'Bet Root':
             return
 
-
         prev_state = next_state
         next_state = next_state.parent
 
         assert isinstance(next_state,BetState), "Error not bet State"
-        [action, bet] = prev_state.parent_tuple[1].split(' ', 1)
+        #print('line 247:, ', prev_state.parent_tuple[1],file=sys.stderr)
+        action = prev_state.parent_tuple[1]
         
         if(action == 'betH'): 
             #high bet 
