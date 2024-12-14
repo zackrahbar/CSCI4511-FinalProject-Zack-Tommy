@@ -1,10 +1,11 @@
 from src.constants import *
 from random import randint
 from src.objects import Player, Card, Dealer
-
+from simulator import Simulator
+from simulate import CardSet, BetState, ObservedState, BeliefState, DealerState
 
 class POMDPPlayer(Player):
-    def __init__(self, name, player_num, numDecks):
+    def __init__(self, name, player_num, numDecks, high, low):
         # Create a new player
         # Initialize variables for things like learning rate and Q-table
 
@@ -23,6 +24,7 @@ class POMDPPlayer(Player):
         self.numCards = self.numdecks * 52
         self.numSeen = 0
         self.allCards = []
+        self.simulator = Simulator(500,high,low)
 
         for deck in self.numdecks:
             for num in list(range(2,11)) + ['J','Q','K','A']:
@@ -74,30 +76,36 @@ class POMDPPlayer(Player):
         #OVERWRITES PLAYERS METHOD
         #calcualte a bet based on current bank
 
-        if self.money >= high:
-            self.bet = -1
-        elif self.money < low:
-            self.bet = -2
-        else:
-            bet = 0
-            #set this to which bet to take (from the action?)
-            if bet == 0:
-                if self.money <= 500:
-                    self.bet = int(self.money*.7)
-                else:
-                    self.bet = int(500*.7)
+        state = BetState(self.money,self.numdecks, None, 500, high, low, None, None, 1)
 
-            elif bet == 1:
-                if self.money <= 500:
-                    self.bet = int(self.money*.4)
-                else:
-                    self.bet = int(500*.4)
+        bet = self.simulator.betting(state)
 
-            elif bet == 2:
-                if self.money <= 500:
-                    self.bet = int(self.money*.1)
-                else:
-                    self.bet = int(500*.1)
+        return bet
+
+        # if self.money >= high:
+        #     self.bet = -1
+        # elif self.money < low:
+        #     self.bet = -2
+        # else:
+        #     bet = 0
+        #     #set this to which bet to take (from the action?)
+        #     if bet == 0:
+        #         if self.money <= 500:
+        #             self.bet = int(self.money*.7)
+        #         else:
+        #             self.bet = int(500*.7)
+
+        #     elif bet == 1:
+        #         if self.money <= 500:
+        #             self.bet = int(self.money*.4)
+        #         else:
+        #             self.bet = int(500*.4)
+
+        #     elif bet == 2:
+        #         if self.money <= 500:
+        #             self.bet = int(self.money*.1)
+        #         else:
+        #             self.bet = int(500*.1)
 		
 class Random(Player):
     def __init__(self, name, player_num):

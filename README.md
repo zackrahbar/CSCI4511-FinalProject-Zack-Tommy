@@ -27,4 +27,4 @@ simulator.py:
  We created this file. This is where we perform our Monte Carlo search and calculate bets and actiosn for the POMDP player to take.   
 
 Measurement of success:
- ????
+ We measure our success by analysing the win percentage of the random player and the POMDP player. Simply if the POMDP player can win a higher percentage games than the random player we have designed a player that is taking more intentional actions and truly playing blackjack using Monte Carlo Tree Search rather than taking actions and makign bets randomly. 
