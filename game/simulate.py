@@ -198,7 +198,7 @@ class CardSet:
 # money is distributed -> bet state 
 
 class BetState:
-    def __init__(self, money: int, decks: int, seen_cards: CardSet, max_bet: int, stop_high: int, stop_low: int, parent, action_taken_here, transition_prob):
+    def __init__(self, money: int, decks: int, seen_cards: CardSet, max_bet: int, stop_high: int, stop_low: int, parent, action_taken_here, transition_prob, value=0):
         '''
         Takes in current State
         money -> the players current balance
@@ -218,7 +218,7 @@ class BetState:
         self.child = []
         self.parent = parent
         self.childtotal = 0 
-        self.weighted_value_high = 0
+        self.weighted_value_high = value
         self.weighted_value_med = 0
         self.weighted_value_low = 0
         self.parent_tuple = (parent, action_taken_here, transition_prob)
@@ -236,27 +236,28 @@ class BetState:
         # 5 actions : stop success, stop failure, bet low, bet med, bet high
 
         #take proportion of num and round down to lowest whole number divisable by 5 
-        percent = lambda num, proportion: (num * proportion) - ((num * proportion)%5)
+        # percent = lambda num, proportion: (num * proportion) - ((num * proportion)%5)
 
-        if self.money * .4 > self.max_bet:
-            # since 40% of our bead is higher than max bet we will say bet high = 90% of max bet, bet med is 40% of max and low is 10%
-            bet_high = percent(self.max_bet, .90)
-            bet_med = percent(self.max_bet, .40)
-            bet_low = percent(self.max_bet, .10)
-        elif self.money * .9 < self.max_bet:
-            # since 40% and 90% of our money is less than max bet we will use our money to set proportions so we adject our bets to the money we have. 
-            bet_high = percent(self.money, .90)
-            bet_med = percent(self.money, .40)
-            bet_low = percent(self.money, .10)
-        else: 
-            bet_high = percent(self.max_bet, .90)
-            bet_med = percent(self.max_bet, .40)
-            bet_low = percent(self.max_bet, .10)
-        actions = [
-                   'betH '+ str(bet_high),
-                   'betM '+ str(bet_med),
-                   'betL '+ str(bet_low),
-                   ]
+        # if self.money * .4 > self.max_bet:
+        #     # since 40% of our bead is higher than max bet we will say bet high = 90% of max bet, bet med is 40% of max and low is 10%
+        #     bet_high = percent(self.max_bet, .90)
+        #     bet_med = percent(self.max_bet, .40)
+        #     bet_low = percent(self.max_bet, .10)
+        # elif self.money * .9 < self.max_bet:
+        #     # since 40% and 90% of our money is less than max bet we will use our money to set proportions so we adject our bets to the money we have. 
+        #     bet_high = percent(self.money, .90)
+        #     bet_med = percent(self.money, .40)
+        #     bet_low = percent(self.money, .10)
+        # else: 
+        #     bet_high = percent(self.max_bet, .90)
+        #     bet_med = percent(self.max_bet, .40)
+        #     bet_low = percent(self.max_bet, .10)
+        # actions = [
+        #            'betH '+ str(bet_high),
+        #            'betM '+ str(bet_med),
+        #            'betL '+ str(bet_low),
+        #            ]
+        actions = ['betH '+ str(100)]
         if self.money > self.stop_high:
             actions = ['Stop Success']
         if self.money < self.stop_low:
@@ -727,7 +728,7 @@ class DealerState:
                     new_seen_cards.add_set(self.player_cards)
                     new_seen_cards.add_set(self.dealer_cards)
                     new_money = self.money + payout
-                    new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, 'h', probability)
+                    new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, 'h', probability, payout)
                 new_states.append((new_state, probability))
                 remaining_deck.add_card_value[card]
                 self.dealer_cards.remove_card_value[card]
