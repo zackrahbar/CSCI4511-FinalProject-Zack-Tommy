@@ -5,6 +5,13 @@ Project Report:
 Software and Hardware Requirements:
  A laptop with python installed.
 
+How to run:
+  python game.py -f configs/___.YAML 2> err.log
+  replace the ____ with your desired file, for example 1user1rand.yaml creates a game with one random player and one human player
+
+  if you run this command in the terminal it may return an error, this is because in order to work, your terminal must be strecthed to cover your whole screen, only then can the interface work and the simulation run
+
+
 Data Soruces:
  We found the implemented game of blackjack int he terminal usign python from this repository: https://github.com/Justinyu1618/terminal_blackjack
  This repository included the playable game of plackjack with the logic for the dealer, the cards, and the game flow. The game was designed to be played by a human entering commands in the terminal. The README.md file in the folder game is the readme from this file and contains an explanation of the logic used and how to play the game.
