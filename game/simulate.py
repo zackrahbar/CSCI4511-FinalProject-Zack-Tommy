@@ -185,6 +185,17 @@ class CardSet:
                 return False
         self.cards = new_set
         return True
+    
+    def is_equal(self, other_set):
+        '''Returns true if the sets are the same '''
+        
+        for key in self.cards.keys():
+            if self.cards[key] != other_set.cards[key]:
+                return False
+        return True
+
+
+
 # state life cycles
 # Action     : Player bets ->  Cards are delt -> beliefs applied ->  players are simulated   ->         Our choice                                 -> other remaining players ->    Dealer turn         -> Betting state 
 # State type :    state    ->  ObservedState  ->  Belief states  -> policies and Transitions -> generate all possible states with transition probs -> policys and tranitions  ->  dealer policy applied -> goes to betting state with new utility
@@ -198,7 +209,7 @@ class CardSet:
 # money is distributed -> bet state 
 
 class BetState:
-    def __init__(self, money: int, decks: int, seen_cards: CardSet, max_bet: int, stop_high: int, stop_low: int, parent, action_taken_here, transition_prob):
+    def __init__(self, money: int, decks: int, seen_cards: CardSet, max_bet: int, stop_high: int, stop_low: int, parent, action_taken_here, transition_prob, value=0):
         '''
         Takes in current State
         money -> the players current balance
@@ -218,7 +229,9 @@ class BetState:
         self.child = []
         self.parent = parent
         self.childtotal = 0 
-        self.weighted_value_total = 0
+        self.weighted_value_high = value
+        self.weighted_value_med = 0
+        self.weighted_value_low = 0
         self.parent_tuple = (parent, action_taken_here, transition_prob)
 
     def set_weighted_value_total(self,value):
@@ -234,27 +247,28 @@ class BetState:
         # 5 actions : stop success, stop failure, bet low, bet med, bet high
 
         #take proportion of num and round down to lowest whole number divisable by 5 
-        percent = lambda num, proportion: (num * proportion) - ((num * proportion)%5)
+        # percent = lambda num, proportion: (num * proportion) - ((num * proportion)%5)
 
-        if self.money * .4 > self.max_bet:
-            # since 40% of our bead is higher than max bet we will say bet high = 90% of max bet, bet med is 40% of max and low is 10%
-            bet_high = percent(self.max_bet, .90)
-            bet_med = percent(self.max_bet, .40)
-            bet_low = percent(self.max_bet, .10)
-        elif self.money * .9 < self.max_bet:
-            # since 40% and 90% of our money is less than max bet we will use our money to set proportions so we adject our bets to the money we have. 
-            bet_high = percent(self.money, .90)
-            bet_med = percent(self.money, .40)
-            bet_low = percent(self.money, .10)
-        else: 
-            bet_high = percent(self.max_bet, .90)
-            bet_med = percent(self.max_bet, .40)
-            bet_low = percent(self.max_bet, .10)
-        actions = [
-                   'bet '+ str(bet_high),
-                   'bet '+ str(bet_med),
-                   'bet '+ str(bet_low),
-                   ]
+        # if self.money * .4 > self.max_bet:
+        #     # since 40% of our bead is higher than max bet we will say bet high = 90% of max bet, bet med is 40% of max and low is 10%
+        #     bet_high = percent(self.max_bet, .90)
+        #     bet_med = percent(self.max_bet, .40)
+        #     bet_low = percent(self.max_bet, .10)
+        # elif self.money * .9 < self.max_bet:
+        #     # since 40% and 90% of our money is less than max bet we will use our money to set proportions so we adject our bets to the money we have. 
+        #     bet_high = percent(self.money, .90)
+        #     bet_med = percent(self.money, .40)
+        #     bet_low = percent(self.money, .10)
+        # else: 
+        #     bet_high = percent(self.max_bet, .90)
+        #     bet_med = percent(self.max_bet, .40)
+        #     bet_low = percent(self.max_bet, .10)
+        # actions = [
+        #            'betH '+ str(bet_high),
+        #            'betM '+ str(bet_med),
+        #            'betL '+ str(bet_low),
+        #            ]
+        actions = ['betH '+ str(100)]
         if self.money > self.stop_high:
             actions = ['Stop Success']
         if self.money < self.stop_low:
@@ -421,7 +435,9 @@ class BeliefState:
         self.child = []
         self.parent = parent
         self.childtotal = 0 
-        self.weighted_value_total = 0
+        self.weighted_value_hit = 0
+        self.weighted_value_stand = 0
+        self.weighted_value_double = 0
         self.parent_tuple = (parent, action_taken_here, transition_prob)
 
     def set_weighted_value_total(self,value):
@@ -539,8 +555,10 @@ class BeliefState:
 
         elif action == 'd':
             #TODO IDK what to do here so I macd it same as stand  
+            # double the bet and decrease the money and 
+
             prob = 1
-            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 's',prob)
+            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 'd',prob)
             self.child.append(dealer)
             self.childtotal = self.childtotal + 1
             return dealer
@@ -565,8 +583,9 @@ class BeliefState:
                 available.append('h')
                 break
         sums = set(total)
-        if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
-            available.append('d')
+        # turn off double even though its like 95% implemented. 
+        # if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
+        #     available.append('d')
 
         return available
         
@@ -723,8 +742,9 @@ class DealerState:
                     new_seen_cards.add_set(self.player_cards)
                     new_seen_cards.add_set(self.dealer_cards)
                     new_money = self.money + payout
-                    new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, 'h', probability)
+                    new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, 'h', probability, payout)
                 new_states.append((new_state, probability))
+                remaining_deck.add_card_value[card]
                 self.dealer_cards.remove_card_value[card]
             
             self.child.extend(new_states)
