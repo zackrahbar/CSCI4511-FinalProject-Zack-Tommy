@@ -780,7 +780,7 @@ class DealerState:
             new_seen_cards.add_set(self.player_cards)
             new_seen_cards.add_set(self.dealer_cards)
             new_money = self.money + payout
-            state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, None, 1)
+            state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, None, 1,value=payout)
             return [(state, 1)]
         
         if action == 'Hit':

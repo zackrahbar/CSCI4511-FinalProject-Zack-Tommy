@@ -85,13 +85,16 @@ class Simulator:
 
         new_final_bet_states = self.get_bet_states_from_dealer_states(new_dealer_state_tuples)
 
+        print('starting backprop', file=sys.stderr)
         for bet_leaf in new_final_bet_states:
             self.backprop(bet_leaf, depth= 'Observed State')
         
+        print('ending backprop', file=sys.stderr)
         #get weighted sum accross all belief states then pick highest
         total_weighted_value_hit = 0
         total_weighted_value_stand = 0
         total_weighted_value_double = 0
+        
         for belief_state_tuple in new_belief_states:
             (state, prob) = belief_state_tuple
             total_weighted_value_hit += (state.parent_tuple[2] * state.weighted_value_hit)
@@ -99,8 +102,8 @@ class Simulator:
             total_weighted_value_double += (state.parent_tuple[2] * state.weighted_value_double)
 
         highest = (total_weighted_value_hit, total_weighted_value_stand, total_weighted_value_double)
-        assert highest != 0, "Error highest should not be zero"
-        
+        #assert highest != 0, "Error highest should not be zero"
+        #print('done weighted sum total_weighted_value_hit: ', total_weighted_value_hit,' total_weighted_value_stand:',total_weighted_value_stand,'total_weighted_value_double: ', total_weighted_value_double, file=sys.stderr)
         action = 's'
 
         if highest == total_weighted_value_hit:
@@ -111,7 +114,7 @@ class Simulator:
         if highest == total_weighted_value_double:
             action = 'd'
         
-        # print('In turn highest value: ', highest, ' returning action:', action, ' |values Hit: ', total_weighted_value_hit, ' stand: ', total_weighted_value_stand,' double: ', total_weighted_value_double, file = sys.stderr)
+        print('In turn highest value: ', highest, ' returning action:', action, ' |values Hit: ', total_weighted_value_hit, ' stand: ', total_weighted_value_stand,' double: ', total_weighted_value_double, file = sys.stderr)
         return action
     @staticmethod
     def get_observed_states_from_bet_state(bet_state: BetState, percent_to_keep: float) -> list[tuple[ObservedState,float]]: 
@@ -217,15 +220,18 @@ class Simulator:
         depth = 'Observed State' will stop propigating at observed state for decison tree.  
         '''
         #go from bet state to dealer state
+        print()
         prev_state = bet_state
         next_state = prev_state.parent 
+        prev_value = bet_state.weighted_value_high
         while (isinstance(next_state, DealerState)):
             #dealer State
-            next_state.value = next_state.value + (prev_state.money * prev_state.parent_tuple[2])
+            next_state.weighted_value_total = next_state.weighted_value_total + (prev_value * prev_state.parent_tuple[2])
             #iterate forward
+            prev_value = next_state.weighted_value_total
             prev_state = next_state
             next_state = next_state.parent
-        
+            
         #next_state is now a belief state and prev_state is a dealer State
         while(isinstance(next_state,BeliefState)):
             #next state is belief state
