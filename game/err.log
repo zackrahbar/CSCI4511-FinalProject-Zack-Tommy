@@ -1,23 +1,5 @@
 this player:  player1
-{'mode': 'user', 'start_money': 1000}
-this player:  player2
-{'mode': 'random', 'start_money': 1000}
+{'mode': 'POMDP', 'start_money': 1000, 'stop_loss_high': 2000, 'stop_loss_low': 250}
 Players
-[{'mode': 'user', 'start_money': 1000}, {'mode': 'random', 'start_money': 1000}]
+[{'mode': 'POMDP', 'start_money': 1000, 'stop_loss_high': 2000, 'stop_loss_low': 250}]
 creating deck with length 8
-Traceback (most recent call last):
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 258, in <module>
-    curses.wrapper(main)	
-  File "/usr/lib/python3.10/curses/__init__.py", line 94, in wrapper
-    return func(stdscr, *args, **kwds)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 254, in main
-    game.run()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 37, in run
-    self.gameplay()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 83, in gameplay
-    self._dealing()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 112, in _dealing
-    self.sleep(300)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 28, in sleep
-    self.screen.getch()
-KeyboardInterrupt

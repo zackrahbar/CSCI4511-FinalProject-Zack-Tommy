@@ -68,7 +68,7 @@ class Game:
 					new_player = Player(f"Player {p_count}", f"P{p_count}")
 					self.types[1] = self.types[1] + 1
 				elif cfg_player['mode'] == 'POMDP':
-					new_player = POMDPPlayer(f"Player {p_count}", f"P{p_count}", self.get_num_decks(), self.config.players[p_count].stop_loss_high,self.config.players[p_count].stop_loss_low)
+					new_player = POMDPPlayer(f"Player {p_count}", f"P{p_count}", self.get_num_decks(), self.config.players[p_count-1]['stop_loss_high'],self.config.players[p_count-1]['stop_loss_low'])
 					self.types[2] = self.types[2] + 1
 				self.players.append(new_player)
 				self.display.add_player(new_player)

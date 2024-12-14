@@ -91,7 +91,7 @@ class Config:
                 if 'mode' not in player:
                     print("Error key : ", 'mode', 'does not exist in metadata', file=sys.stderr)
                     sys.exit(1)
-                if player['mode'] == 'computer':
+                if player['mode'] == 'POMDP':
                     for key in PLAYER_COMP_CONTAINS_VARS:
                         if key not in player:
                             print("Error key : ", key, 'does not exist in player ', i,'.', file=sys.stderr)
