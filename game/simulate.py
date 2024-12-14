@@ -499,9 +499,10 @@ class BeliefState:
                 self.player_cards.remove_card_value(card)
                 remaining_deck.add_card_value(card)
         elif action == 's':
-            new_state = BeliefState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards,self,'s',1)
+            new_state = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards,self,'s',1)
             new_states.append((new_state, 1))
         
+        return new_states
 
 
     def generate_next_states_OLD(self, action):
@@ -780,7 +781,7 @@ class DealerState:
             new_seen_cards.add_set(self.player_cards)
             new_seen_cards.add_set(self.dealer_cards)
             new_money = self.money + payout
-            state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, None, 1)
+            state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, None, 1,value=payout)
             return [(state, 1)]
         
         if action == 'Hit':

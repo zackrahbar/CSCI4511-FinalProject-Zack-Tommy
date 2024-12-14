@@ -154,6 +154,7 @@ class Game:
 						break
 			elif isinstance(player,POMDPPlayer):
 				cmd = player.get_options(self.players, self.dealer)
+				print("line 157 game.py",file=sys.stderr)
 				self.display.set_turn(player)
 				while(True):
 					if cmd == ord('h'):

@@ -4,24 +4,32 @@ Players
 [{'mode': 'POMDP', 'start_money': 1000, 'stop_loss_high': 2000, 'stop_loss_low': 250}]
 creating deck with length 8
 Bet state actions:  ['betH 100']
-Done get_observed_states_from_bet_state
-Done get_belief_states_from_observed_states
-Done get_dealer_states_from_belief_states
-Done get_bet_states_from_dealer_states
-In betting value:  0  returning action: l
+Done get_observed_states_from_bet_state len returing 1000
+Done get_belief_states_from_observed_states len returing 10000
+In get_dealer_states_from_belief_states---------------
+adding belief states v2 to the queue len:  29997
+adding belief states v2 to the queue len:  59994
+remaining belief states to process len 59995
+returning get_dealer_states_from_belief_states len:  99991
 Traceback (most recent call last):
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 299, in <module>
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 300, in <module>
     curses.wrapper(main)	
   File "/usr/lib/python3.10/curses/__init__.py", line 94, in wrapper
     return func(stdscr, *args, **kwds)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 295, in main
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 296, in main
     game.run()
   File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 39, in run
     self.gameplay()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 92, in gameplay
-    self._turn()
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 156, in _turn
-    cmd = player.get_options(self.players, self.dealer)
-  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/solver.py", line 59, in get_options
-    if card not in self.seen and card.facedown is False:
-TypeError: argument of type 'CardSet' is not iterable
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 88, in gameplay
+    self._betting()
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 106, in _betting
+    bet = player.make_bet(self.config.players[int(player.number[1])-1]['stop_loss_high'],self.config.players[int(player.number[1])-1]['stop_loss_low'])
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/solver.py", line 104, in make_bet
+    bet = self.simulator.betting(state)
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/simulator.py", line 35, in betting
+    self.final_bet_states = self.get_bet_states_from_dealer_states(self.dealer_state_tuples)
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/simulator.py", line 255, in get_bet_states_from_dealer_states
+    actions = this_state.generate_actions()
+  File "/home/thomasriffe/AI_algs/BlackjackProject/CSCI4511-FinalProject-Zack-Tommy/game/simulate.py", line 705, in generate_actions
+    for card in self.player_cards:
+TypeError: 'CardSet' object is not iterable

@@ -3,7 +3,7 @@ from random import randint
 from src.objects import Player, Card, Dealer
 from simulator import Simulator
 from simulate import CardSet, BetState, ObservedState, BeliefState, DealerState
-
+import sys
 class POMDPPlayer(Player):
     def __init__(self, name, player_num, numDecks, high, low):
         # Create a new player
@@ -36,6 +36,7 @@ class POMDPPlayer(Player):
     def make_a_move(self, options, possible, dealers, playerhas):
         #choose an action via q learning 
         action = self.simulator.turn(playerhas, dealers, self.seen, self.numdecks, self.money, self.bet)
+        print("line 38 of solver", file=sys.stderr)
         return action
     
     def update_seen(self):
