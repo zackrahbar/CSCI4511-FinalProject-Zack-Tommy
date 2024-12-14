@@ -18,10 +18,10 @@ class Simulator:
         print("Bet state actions: ", bet_state_actions, file=sys.stderr)
         if len(bet_state_actions) == 1 and bet_state_actions[0] == 'Stop Success':
             #return succcess
-            return 1 
+            return -1 
         if len(bet_state_actions) == 1 and bet_state_actions[0] == 'Stop Failure':
             #return failure
-            return 0
+            return -2
         
 
         # exploring down the tree. 
