@@ -81,7 +81,7 @@ class POMDPPlayer(Player):
         #OVERWRITES PLAYERS METHOD
         #calcualte a bet based on current bank
 
-        state = BetState(self.money,self.numdecks, None, 500, high, low, None, None, 1)
+        state = BetState(self.money,self.numdecks, self.seen, 500, high, low, None, None, 1)
 
         if self.money >= high:
             self.bet = -1

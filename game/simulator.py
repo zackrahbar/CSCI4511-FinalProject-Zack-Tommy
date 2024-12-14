@@ -133,7 +133,8 @@ class Simulator:
             next_states.sort(reverse=True, key= lambda x: x[1])
             num_to_check = math.floor(len(next_states) * percent_to_keep)
             states_to_return.extend(next_states[0:num_to_check])
-
+        print('Done get_observed_states_from_bet_state', file=sys.stderr)
+        
         return states_to_return 
         
     
@@ -142,8 +143,9 @@ class Simulator:
         belief_states = []
         for state_tuple in observed_states:
             (state, belief) = state_tuple
-            for num in list(range(2,11)+['A']):
+            for num in list(range(2,11))+['A']:
                 belief_states.append(state.generate_belief_states(num))
+        print('Done get_belief_states_from_observed_states', file=sys.stderr)
         return belief_states
         
 
@@ -152,17 +154,21 @@ class Simulator:
         belief_states_to_process = belief_states
         dealer_states_to_return = []
         while(len(belief_states_to_process) > 0):
+            #print('\t while loop len : ',len(belief_states_to_process),file=sys.stderr )
             (state, belief_prob) = belief_states_to_process.pop()
+            #state = belief_states_to_process.pop()
             actions = state.generate_action()
             for action in actions:
                 new_states = state.generate_next_states(action)
-                for state_tuple in new_states:
-                    if state_tuple[0] == None:
-                        continue
-                    if state_tuple[0].isinstance(DealerState):
-                        dealer_states_to_return.append(state_tuple)
-                    else: 
-                        belief_states_to_process.append(state_tuple)
+                if new_states != None:
+                    for state_tuple in new_states:
+                        if state_tuple == None:
+                            continue
+                        if isinstance(state_tuple,DealerState):
+                            dealer_states_to_return.append(state_tuple)
+                        elif isinstance(state_tuple, BeliefState): 
+                            belief_states_to_process.append((state_tuple,1))
+        print('Done get_dealer_states_from_belief_states', file=sys.stderr)
         return dealer_states_to_return
 
 
@@ -183,10 +189,12 @@ class Simulator:
                     #if the state is another dealer state add it to the 
                     if state == None:
                         continue
-                    elif state.isinstance(DealerState):
+                    elif isinstance(state,DealerState):
                         dealer_states_to_process.append(state_tuple)
                     else:
                         bet_states.append(state_tuple)
+        print('Done get_bet_states_from_dealer_states', file=sys.stderr)
+                        
         return bet_states
                         
                        
