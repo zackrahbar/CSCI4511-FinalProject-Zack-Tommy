@@ -1,0 +1,28 @@
+#basic config for 1 user playing 
+# template for configuring the game
+metadata:
+  players: 2 # total number of players, 0 < players <= 4
+  computer_players: 0 # number of computer players. 0 <= computer_players <= players
+  deck_mode: random # ordered, random or uniform_random it will draw from the deck randomly or in order. 
+  #when ordered is specified all cards must be specified below in deck
+  #when deck is random number of deck must be specified in num_decks
+  num_decks: 8 # when ordered -> num_decks is the number of decks that would be in the game required even when ordered mode. 
+  deck_seed: dfafa # seed used for uniform_random.  
+player1:
+  mode: user # computer, random or user, user means that we play this player
+  start_money: 1000 # start money 
+player2:
+  mode: POMDP # computer, random or user, user means that we play this player
+  start_money: 1000 # start money 
+  stop_loss_high: 2000
+  stop_loss_low: 250
+#Deck is the order of the deck we want 
+#D = "diamonds"
+#S = "spades"
+#H = "hearts"
+#C = "clubs"
+# followed by the number which is list(range(2,11)) + ['J','Q','K','A']
+# examples:
+# DJ is jack of diamonds
+# C10 is a 10 of clubs 
+

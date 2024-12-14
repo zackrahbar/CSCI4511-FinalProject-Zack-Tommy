@@ -6,8 +6,15 @@ Software and Hardware Requirements:
  A laptop with python installed.
 
 How to run:
+  cd into the game folder
   python game.py -f configs/___.YAML 2> err.log
   replace the ____ with your desired file, for example 1user1rand.yaml creates a game with one random player and one human player
+  We have created 4 config files that are best to showcase our work:
+    1: 1user1POMDP.YAML creates 1 human player and 1 POMDP player
+    2: POMDPAgent.YAML creates just a POMDP player
+    3: 1user1rand.YAML creates 1 human player and 1 random player
+    4: POMDPAgent.YAML creates just a random player
+  Using one of the files with a human player will allow you to slow the pace of the game deliberately by not inputting commands right away in order to see the moves the random or POMDP players are making.
 
   if you run this command in the terminal it may return an error, this is because in order to work, your terminal must be strecthed to cover your whole screen, only then can the interface work and the simulation run
 
