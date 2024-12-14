@@ -46,9 +46,53 @@ class Simulator:
             seen_cards -> cards seen in prevous rounds 
             
         '''
-        pass
 
+        #check obervation states to see if any mactch 
+        #find state 
+        matching_state = None
+        for obs_state_tuple in self.observed_state_tuples:
+            (state, prob) = obs_state_tuple
+            #check if the cards are the same
+            if player_cards.is_equal(state.player_cards):
+                if dealer_cards.is_equal(state.dealer_cards):
+                    if seen_cards.is_equal(state.seen_cards):
+                        matching_state = obs_state_tuple
+                    else:
+                        print("player and dealer mathch but seen don't, might be error")
 
+        if matching_state == None:
+            # it wasn't found so generate it
+            matching_state = ObservedState(money, decks,bet,seen_cards,player_cards,dealer_cards,None,None,0)
+        
+        new_belief_states = Simulator.get_belief_states_from_observed_states([(matching_state,1)])
+
+        new_dealer_state_tuples = Simulator.get_dealer_states_from_belief_states(new_belief_states)
+
+        new_final_bet_states = self.get_bet_states_from_dealer_states(new_dealer_state_tuples)
+
+        for bet_leaf in new_final_bet_states:
+            self.backprop(bet_leaf, depth= 'Observed State')
+        
+        #get weighted sum accross all belief states then pick highest
+        total_weighted_value_hit = 0
+        total_weighted_value_stand = 0
+        total_weighted_value_double = 0
+        for belief_state_tuple in new_belief_states:
+            (state, prob) = belief_state_tuple
+            total_weighted_value_hit += (state.parent_tuple[2] * state.weighted_value_hit)
+            total_weighted_value_stand += (state.parent_tuple[2] * state.weighted_value_stand)
+            total_weighted_value_double += (state.parent_tuple[2] * state.weighted_value_double)
+
+        highest = (total_weighted_value_hit, total_weighted_value_stand, total_weighted_value_double)
+        assert highest != 0 "Error highest should not be zero"
+        if highest == total_weighted_value_hit:
+            #hit is best
+            return 'h'
+        if highest == total_weighted_value_stand:
+            return 's'
+        if highest == total_weighted_value_double:
+            return 'd'
+        
     @staticmethod
     def get_observed_states_from_bet_state(bet_state: BetState, percent_to_keep: float) -> list[tuple[ObservedState,float]]: 
         '''

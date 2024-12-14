@@ -185,6 +185,17 @@ class CardSet:
                 return False
         self.cards = new_set
         return True
+    
+    def is_equal(self, other_set):
+        '''Returns true if the sets are the same '''
+        
+        for key in self.cards.keys():
+            if self.cards[key] != other_set.cards[key]:
+                return False
+        return True
+
+
+
 # state life cycles
 # Action     : Player bets ->  Cards are delt -> beliefs applied ->  players are simulated   ->         Our choice                                 -> other remaining players ->    Dealer turn         -> Betting state 
 # State type :    state    ->  ObservedState  ->  Belief states  -> policies and Transitions -> generate all possible states with transition probs -> policys and tranitions  ->  dealer policy applied -> goes to betting state with new utility
@@ -544,8 +555,10 @@ class BeliefState:
 
         elif action == 'd':
             #TODO IDK what to do here so I macd it same as stand  
+            # double the bet and decrease the money and 
+
             prob = 1
-            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 's',prob)
+            dealer = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 'd',prob)
             self.child.append(dealer)
             self.childtotal = self.childtotal + 1
             return dealer
