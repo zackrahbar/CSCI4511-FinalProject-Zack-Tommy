@@ -26,7 +26,7 @@ class POMDPPlayer(Player):
         self.allCards = []
         self.simulator = Simulator(500,high,low)
 
-        for deck in self.numdecks:
+        for deck in range(self.numdecks):
             for num in list(range(2,11)) + ['J','Q','K','A']:
                 for suit in SUIT:
                     self.allCards.append(Card(suit, num))
