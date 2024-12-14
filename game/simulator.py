@@ -12,7 +12,7 @@ class Simulator:
         self.stop_low = stop_low
     def betting(self, bet_state: BetState ):
         
-        
+        print("Simulator called to get bet", file=sys.stderr)
         self.root_bet_state = bet_state
         bet_state_actions = bet_state.generate_actions()
         print("Bet state actions: ", bet_state_actions, file=sys.stderr)
