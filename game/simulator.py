@@ -156,7 +156,7 @@ class Simulator:
         
 
     @staticmethod
-    def get_dealer_states_from_belief_states(belief_states: list[tuple[BeliefState,float]], depth:list[int]=[3,2,1],iterations:int = 2)-> list[tuple[DealerState]]:
+    def get_dealer_states_from_belief_states(belief_states: list[tuple[BeliefState,float]], depth:list[int]=[3,0,0],iterations:int = 2)-> list[tuple[DealerState]]:
         print('In get_dealer_states_from_belief_states---------------',file=sys.stderr)
         
 

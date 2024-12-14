@@ -8,31 +8,6 @@ Done get_observed_states_from_bet_state len returing 1000
 Done get_belief_states_from_observed_states len returing 10000
 In get_dealer_states_from_belief_states---------------
 adding belief states v2 to the queue len:  29997
-adding belief states v2 to the queue len:  59994
-remaining belief states to process len 59995
-returning get_dealer_states_from_belief_states len:  99991
-Traceback (most recent call last):
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 301, in <module>
-    curses.wrapper(main)	
-    ^^^^^^^^^^^^^^^^^^^^
-  File "/Library/anaconda3/lib/python3.11/curses/__init__.py", line 94, in wrapper
-    return func(stdscr, *args, **kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 297, in main
-    game.run()
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 39, in run
-    self.gameplay()
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 88, in gameplay
-    self._betting()
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/game.py", line 106, in _betting
-    bet = player.make_bet(self.config.players[int(player.number[1])-1]['stop_loss_high'],self.config.players[int(player.number[1])-1]['stop_loss_low'])
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/solver.py", line 104, in make_bet
-    bet = self.simulator.betting(state)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/simulator.py", line 35, in betting
-    self.final_bet_states = self.get_bet_states_from_dealer_states(self.dealer_state_tuples)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/zackrahbar/Desktop/School_Stuff/George_Washington_University/Senior Year/Fall Semester /Artificial Intelligence - CSCI 4511/project/CSCI4511-FinalProject-Zack-Tommy/game/simulator.py", line 258, in get_bet_states_from_dealer_states
-    for state_tuple in next_states:
-TypeError: 'NoneType' object is not iterable
+adding belief states v2 to the queue len:  0
+remaining belief states to process len 0
+returning get_dealer_states_from_belief_states len:  39997

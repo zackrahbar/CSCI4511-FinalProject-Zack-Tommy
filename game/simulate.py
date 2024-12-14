@@ -756,7 +756,7 @@ class DealerState:
             returns [(state, probability), ... ]
             where utility is the money in the new state. 
         '''
-        if action == 'Stand':
+        if action == 's':
             #dealer stand so evaluate who won and create a new bet state with an updated money. clear the table by adding dealer and player cards to the seen cards set
             
             payout = DealerState.evaluate_payout(self.player_cards,self.dealer_cards,self.bet)
@@ -768,7 +768,7 @@ class DealerState:
             state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, None, 1,value=payout)
             return [(state, 1)]
         
-        if action == 'Hit':
+        if action == 'h':
             # generate a new dealerstate object 
             new_states = []
 
@@ -778,13 +778,13 @@ class DealerState:
             remaining_deck.subtract_set(self.dealer_cards)
             for card in list(range(2,11))+['A']:
                 probability = 1 
-                probability = remaining_deck.probability_of_num[card]
+                probability = remaining_deck.probability_of_num(card)
                 # take a card out of seen cards
-                if remaining_deck.remove_card_value[card] == False:
+                if remaining_deck.remove_card_value(card) == False:
                     # a card is not able to be taken so skip this combination
                     new_states.append((None,0))
                     continue 
-                self.dealer_cards.add_card_value[card]
+                self.dealer_cards.add_card_value(card)
                 if self.dealer_cards.set_sum() <= 21:
                     new_state = DealerState(self.money,self.decks,self.bet,self.seen_cards,self.player_cards,self.dealer_cards, self, 'h', probability)
                 else:
@@ -797,8 +797,8 @@ class DealerState:
                     new_money = self.money + payout
                     new_state = BetState(new_money,self.decks,new_seen_cards,max_bet,stop_high,stop_low, self, 'h', probability, payout)
                 new_states.append((new_state, probability))
-                remaining_deck.add_card_value[card]
-                self.dealer_cards.remove_card_value[card]
+                remaining_deck.add_card_value(card)
+                self.dealer_cards.remove_card_value(card)
             
             self.child.extend(new_states)
             self.childtotal = self.childtotal + len(new_states)
