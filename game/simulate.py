@@ -701,29 +701,13 @@ class DealerState:
         ['Hit','Stand']
         '''
 
-        total = [0]
-        for card in self.player_cards:
-            if card.num == 'A':
-                temp = [11 + t for t in total]
-                total = [1 + t for t in total]
-                total.extend(temp)
-            elif not card.num.isdigit():
-                total = [10 + t for t in total]
-            else:
-                total = [int(card.num) + t for t in total]
-        total = [t for t in total if t <= 21]
+        total = self.player_cards.set_sum()
 
-        if len(total) == 2:
-            t = min(total[0], total[1])
-            if t < 17:
-                return CMD.HIT
-            else:
-                return CMD.STAND
+        
+        if total < 17:
+            return 'h'
         else:
-            if total[0] < 17:
-                return CMD.HIT
-            else:
-                return CMD.STAND
+            return 's'
 
 
     #static for evaluation
