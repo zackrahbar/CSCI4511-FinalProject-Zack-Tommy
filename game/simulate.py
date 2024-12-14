@@ -33,6 +33,23 @@ class CardSet:
     # 9 | 4 
     # 10| 16 bc K, Q, J and 10 are all valued at 10
     
+    def __str__(self):
+        this_str = '--------'
+        this_str += 'count: '
+        this_str += str(self.count())
+        this_str += '\n'
+        this_str += 'sum: '
+        this_str += str(self.set_sum())
+        this_str += '\n'
+        for key in self.cards.keys():
+            if isinstance(key,int):
+                this_str += str(key)
+            else:
+                this_str += key
+            this_str += ' : '
+            this_str += str(self.cards[key])
+            this_str += '\n'
+        return this_str
     def __init__(self, game_cards: list[Card]= None, decks: int=None):
         '''
         Create a new CardSet
@@ -90,8 +107,6 @@ class CardSet:
     def add_card_value(self, num):
         '''num should be an integer or a string 'A' for ace. k,q,j are all 10. '''
         if isinstance(num,int):
-            if self.cards[num] == 0: 
-                return False
             self.cards[num] += 1
         elif num.isdigit():
             num = int(num)
@@ -186,10 +201,11 @@ class CardSet:
         sum = 0
         # add all regular cards
         for i in range(2,11):
-            sum += i * self.cards[i]
+            sum += (i * self.cards[i])
+        #print('sum A : ',sum,file=sys.stderr)
         for k in range(self.cards['A']):
             if (sum + 11) > 21:
-                sum + 1
+                sum += 1
         return sum
     
     def add_set(self, other_set):
@@ -284,7 +300,7 @@ class BetState:
         #            'betM '+ str(bet_med),
         #            'betL '+ str(bet_low),
         #            ]
-        actions = ['betH '+ str(100)]
+        actions = ['betH 100']
         if self.money > self.stop_high:
             actions = ['Stop Success']
         if self.money < self.stop_low:
@@ -701,9 +717,9 @@ class DealerState:
         ['Hit','Stand']
         '''
 
-        total = self.player_cards.set_sum()
+        total = self.dealer_cards.set_sum()
 
-        
+        #print('deck: \n', self.dealer_cards, file=sys.stderr)
         if total < 17:
             return 'h'
         else:
