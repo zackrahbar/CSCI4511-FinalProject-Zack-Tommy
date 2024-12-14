@@ -35,7 +35,7 @@ class POMDPPlayer(Player):
 		
     def make_a_move(self, options, possible, dealers, playerhas):
         #choose an action via q learning 
-        action = self.simulator.Turn(playerhas, dealers, self.seen, self.numdecks, self.money, self.bet)
+        action = self.simulator.turn(playerhas, dealers, self.seen, self.numdecks, self.money, self.bet)
         return action
     
     def update_seen(self):
@@ -56,14 +56,26 @@ class POMDPPlayer(Player):
 
         for p in players:
             for card in p.cards:
-                if card not in self.seen and card.facedown is False:
+                if card.num == 'K' or card.num == 'Q' or card.num == 'J':
+                    val = 10
+                elif card.num == 'A':
+                    val = 'A'
+                else:
+                    val = int(card.num)
+                if self.seen.cards[val] > 0 and card.facedown is False:
                     self.seen.add_card_obj(card)
                     self.update_seen()
                     playerhas.add_card_obj(card)
                     numontable = numontable + 1
         
         for card in dealer.cards:
-            if card not in self.seen and card.facedown is False:
+            if card.num == 'K' or card.num == 'Q' or card.num == 'J':
+                    val = 10
+            elif card.num == 'A':
+                    val = 'A'
+            else:
+                    val = int(card.num)
+            if self.seen.cards[val] > 0 and card.facedown is False:
                 self.seen.add_card_obj(card)
                 self.update_seen()
                 dealers.add_card_obj(card)
