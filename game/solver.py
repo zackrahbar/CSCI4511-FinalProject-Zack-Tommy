@@ -83,34 +83,32 @@ class POMDPPlayer(Player):
 
         state = BetState(self.money,self.numdecks, None, 500, high, low, None, None, 1)
 
-        bet = self.simulator.betting(state)
+        if self.money >= high:
+            self.bet = -1
+        elif self.money < low:
+            self.bet = -2
+        else:
+            bet = self.simulator.betting(state)
+            #set this to which bet to take (from the action?)
+            if bet == 'h':
+                if self.money <= 500:
+                    self.bet = int(self.money*.7)
+                else:
+                    self.bet = int(500*.7)
 
-        return bet
+            elif bet == 'm':
+                if self.money <= 500:
+                    self.bet = int(self.money*.4)
+                else:
+                    self.bet = int(500*.4)
 
-        # if self.money >= high:
-        #     self.bet = -1
-        # elif self.money < low:
-        #     self.bet = -2
-        # else:
-        #     bet = 0
-        #     #set this to which bet to take (from the action?)
-        #     if bet == 0:
-        #         if self.money <= 500:
-        #             self.bet = int(self.money*.7)
-        #         else:
-        #             self.bet = int(500*.7)
+            elif bet == 'l':
+                if self.money <= 500:
+                    self.bet = int(self.money*.1)
+                else:
+                    self.bet = int(500*.1)
 
-        #     elif bet == 1:
-        #         if self.money <= 500:
-        #             self.bet = int(self.money*.4)
-        #         else:
-        #             self.bet = int(500*.4)
-
-        #     elif bet == 2:
-        #         if self.money <= 500:
-        #             self.bet = int(self.money*.1)
-        #         else:
-        #             self.bet = int(500*.1)
+        return self.bet
 		
 class Random(Player):
     def __init__(self, name, player_num):
@@ -121,6 +119,8 @@ class Random(Player):
             self.bet = randint(5, self.money)
         else:
             self.bet = randint(5, 500)
+
+        return self.bet
     
     def get_options(self):
         ret = [CMD.HIT, CMD.STAND]
