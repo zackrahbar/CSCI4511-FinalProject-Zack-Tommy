@@ -15,7 +15,7 @@ class Simulator:
         
         self.root_bet_state = bet_state
         bet_state_actions = bet_state.generate_actions()
-        print("Bet state actions: ", bet_state_actions, file=sys.stderr)
+        #print("Bet state actions: ", bet_state_actions, file=sys.stderr)
         if len(bet_state_actions) == 1 and bet_state_actions[0] == 'Stop Success':
             #return succcess
             return -1 
@@ -38,7 +38,7 @@ class Simulator:
 
         for bet_leaf in self.final_bet_states:
             (st,prob) = bet_leaf
-            print('bet state value: ', st.weighted_value_high, file=sys.stderr)
+            #print('bet state value: ', st.weighted_value_high, file=sys.stderr)
             self.backprop(bet_leaf)
 
         value = self.root_bet_state.weighted_value_high
@@ -54,7 +54,7 @@ class Simulator:
         else:
             action = 'm'
 
-        print('In betting value: ', value, ' returning action:', action, file = sys.stderr)
+        print('In root betting state value: ', value, ' returning action:', action, file = sys.stderr)
         return action
 
     def turn(self, player_cards: CardSet, dealer_cards: CardSet, seen_cards: CardSet, decks: int, money:int, bet: int ):
@@ -247,7 +247,7 @@ class Simulator:
 
                 
     def get_bet_states_from_dealer_states(self, dealer_states: list[tuple[DealerState,float]], depth:list[int]=[3,0,0],iterations:int = 2) -> list[BetState]:
-        print('Entering get_bet_states_from_dealer_states -------')
+        print('Entering get_bet_states_from_dealer_states -------', file = sys.stderr)
         dealer_states_to_process = dealer_states
         bet_states = []
         next_dealer_states =[]
@@ -295,7 +295,7 @@ class Simulator:
         '''
         (bet_state,prob) = bet_state_tuple
         #go from bet state to dealer state
-        print('backprob bet state value', bet_state.weighted_value_high, file=sys.stderr)
+        #print('backprob bet state value', bet_state.weighted_value_high, file=sys.stderr)
         prev_state = bet_state
         next_state = prev_state.parent 
         prev_value = bet_state.weighted_value_high
