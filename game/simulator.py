@@ -84,7 +84,7 @@ class Simulator:
             total_weighted_value_double += (state.parent_tuple[2] * state.weighted_value_double)
 
         highest = (total_weighted_value_hit, total_weighted_value_stand, total_weighted_value_double)
-        assert highest != 0 "Error highest should not be zero"
+        assert highest != 0, "Error highest should not be zero"
         if highest == total_weighted_value_hit:
             #hit is best
             return 'h'

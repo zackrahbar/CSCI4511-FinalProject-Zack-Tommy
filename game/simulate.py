@@ -583,8 +583,9 @@ class BeliefState:
                 available.append('h')
                 break
         sums = set(total)
-        if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
-            available.append('d')
+        # turn off double even though its like 95% implemented. 
+        # if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
+        #     available.append('d')
 
         return available
         
