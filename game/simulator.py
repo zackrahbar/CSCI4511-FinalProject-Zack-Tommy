@@ -38,7 +38,22 @@ class Simulator:
         for bet_leaf in self.final_bet_states:
             self.backprop(bet_leaf)
 
-    
+        value = self.root_bet_state.weighted_value_high
+        # high and low cut off med is inbetween
+        
+        LOW_CUTOFF = 95
+        HIGH_CUTOFF = 105
+
+        if value > HIGH_CUTOFF:
+            action = 'h'
+        elif value < LOW_CUTOFF:
+            action = 'l'
+        else:
+            action = 'm'
+
+        print('In betting value: ', value, ' returning action:', action, file = sys.stderr)
+        return action
+
     def turn(self, player_cards: CardSet, dealer_cards: CardSet, seen_cards: CardSet, decks: int, money:int, bet: int ):
         '''
             player cards -> cards in player hand
@@ -85,14 +100,17 @@ class Simulator:
 
         highest = (total_weighted_value_hit, total_weighted_value_stand, total_weighted_value_double)
         assert highest != 0, "Error highest should not be zero"
+        
         if highest == total_weighted_value_hit:
             #hit is best
-            return 'h'
+            action = 'h'
         if highest == total_weighted_value_stand:
-            return 's'
+            action = 's'
         if highest == total_weighted_value_double:
-            return 'd'
+            action = 'd'
         
+        print('In turn highest value: ', highest, ' returning action:', action, ' |values Hit: ', total_weighted_value_hit, ' stand: ', total_weighted_value_stand,' double: ', total_weighted_value_double, file = sys.stderr)
+        return action
     @staticmethod
     def get_observed_states_from_bet_state(bet_state: BetState, percent_to_keep: float) -> list[tuple[ObservedState,float]]: 
         '''
