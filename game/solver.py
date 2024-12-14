@@ -93,20 +93,26 @@ class POMDPPlayer(Player):
             if bet == 'h':
                 if self.money <= 500:
                     self.bet = int(self.money*.7)
+                    self.money -= self.bet
                 else:
                     self.bet = int(500*.7)
+                    self.money -= self.bet
 
             elif bet == 'm':
                 if self.money <= 500:
                     self.bet = int(self.money*.4)
+                    self.money -= self.bet
                 else:
                     self.bet = int(500*.4)
+                    self.money -= self.bet
 
             elif bet == 'l':
                 if self.money <= 500:
                     self.bet = int(self.money*.1)
+                    self.money -= self.bet
                 else:
                     self.bet = int(500*.1)
+                    self.money -= self.bet
 
         return self.bet
 		
@@ -119,6 +125,8 @@ class Random(Player):
             self.bet = randint(5, self.money)
         else:
             self.bet = randint(5, 500)
+
+        self.money -= self.bet
 
         return self.bet
     
