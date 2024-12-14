@@ -155,7 +155,6 @@ class Game:
 			elif isinstance(player,POMDPPlayer):
 				cmd = player.get_options(self.players, self.dealer)
 				self.display.set_turn(player)
-				print("line 157 game.py" + cmd, file=sys.stderr)
 				while(True):
 					if cmd == ord('h'):
 						player.add_card(self.dealer.deal())
