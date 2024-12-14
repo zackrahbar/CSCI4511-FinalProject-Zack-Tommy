@@ -142,7 +142,7 @@ class Simulator:
         belief_states = []
         for state_tuple in observed_states:
             (state, belief) = state_tuple
-            for num in list(range(2,11)+['A']):
+            for num in list(range(2,11))+['A']:
                 belief_states.append(state.generate_belief_states(num))
         return belief_states
         

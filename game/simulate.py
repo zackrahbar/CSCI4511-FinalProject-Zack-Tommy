@@ -72,7 +72,11 @@ class CardSet:
             for key in self.cards.keys():
                 self.cards[key] = decks * STANDARD_DECK[key]
     def add_card_obj(self, card: Card):
-        if card.num.isdigit():
+        if isinstance(num,int):
+            if self.cards[num] == 0: 
+                return False
+            self.cards[num] += 1
+        elif card.num.isdigit():
             num = int(card.num)
             self.cards[num] += 1
         elif card.num == 'A':
@@ -85,7 +89,11 @@ class CardSet:
         return True
     def add_card_value(self, num):
         '''num should be an integer or a string 'A' for ace. k,q,j are all 10. '''
-        if num.isdigit():
+        if isinstance(num,int):
+            if self.cards[num] == 0: 
+                return False
+            self.cards[num] += 1
+        elif num.isdigit():
             num = int(num)
             self.cards[num] += 1
         elif num == 'A':
@@ -97,7 +105,11 @@ class CardSet:
             return False
         return True
     def remove_card_obj(self, card: Card):
-        if card.num.isdigit():
+        if isinstance(num,int):
+            if self.cards[num] == 0: 
+                return False
+            self.cards[num] -= 1
+        elif card.num.isdigit():
             num = int(card.num)
             if self.cards[num] == 0: 
                 return False
@@ -117,7 +129,11 @@ class CardSet:
         
     def remove_card_value(self, num):
         '''num should be an integer or a string 'A' for ace. k,q,j are all 10. '''
-        if num.isdigit():
+        if isinstance(num,int):
+            if self.cards[num] == 0: 
+                return False
+            self.cards[num] -= 1
+        elif num.isdigit():
             num = int(num)
             if self.cards[num] == 0: 
                 return False
@@ -296,58 +312,59 @@ class BetState:
         if not bet_amount.isdigit(): 
             print('Error generate next states in BetState, invalid action', file= sys.stderr)
 
-        new_money = self.money - bet_amount
+        new_money = self.money - int(bet_amount)
         
         # reaminaing deck
 
         remaining_deck = CardSet(decks=self.decks)
+        
         remaining_deck.subtract_set(self.seen_cards)
 
         #create all possible combinations of 3 cards being delt. 1 to player then 1 to dealer then 1 to player. 
         new_states=[]
 
-        for c1 in list(range(2,11) + ['A']):
+        for c1 in list(range(2,11)) + ['A']:
             #get probability 
             probability = 1 
-            probability_c1 = remaining_deck.probability_of_num[c1]
+            probability_c1 = remaining_deck.probability_of_num(c1)
             # take a card out of seen cards
-            if remaining_deck.remove_card_value[c1] == False:
+            if remaining_deck.remove_card_value(c1) == False:
                 # a card is not able to be taken so skip this combination
                 new_states.append((None,0))
                 continue 
             probability = probability * probability_c1
             player_cards = CardSet()
             dealer_cards = CardSet()
-            player_cards.add_card_value[c1]
-            for c2 in list(range(2,11) + ['A']):
+            player_cards.add_card_value(c1)
+            for c2 in list(range(2,11)) + ['A']:
                 #update prob
-                probability_c2 = remaining_deck.probability_of_num[c2]
+                probability_c2 = remaining_deck.probability_of_num(c2)
                 # take a card out of seen cards and add to dealer cards
-                if remaining_deck.remove_card_value[c2] == False:
+                if remaining_deck.remove_card_value(c2) == False:
                     # a card is not able to be taken so skip this combination
                     new_states.append((None,0))
                     continue 
                 probability = probability * probability_c2
-                dealer_cards.add_card_value[c2]
-                for c3 in list(range(2,11) + ['A']):
+                dealer_cards.add_card_value(c2)
+                for c3 in list(range(2,11)) + ['A']:
                     #update prob
-                    probability_c3 = remaining_deck.probability_of_num[c3] # this is now the transition probability for this state from previous state given this action
+                    probability_c3 = remaining_deck.probability_of_num(c3) # this is now the transition probability for this state from previous state given this action
                     # take a card out of seen cards and add to dealer cards
-                    if remaining_deck.remove_card_value[c2] == False:
+                    if remaining_deck.remove_card_value(c2) == False:
                     # a card is not able to be taken so skip this combination
                         new_states.append((None,0))
                         continue 
                     probability = probability * probability_c3
-                    player_cards.add_card_value[c3]
-                    new_state = ObservedState(new_money,self.decks,int(bet_amount),self.seen_cards,player_cards,dealer_cards, self)
+                    player_cards.add_card_value(c3)
+                    new_state = ObservedState(new_money,self.decks,int(bet_amount),self.seen_cards,player_cards,dealer_cards, self,action,probability)
                     new_states.append((new_state, probability))
                     # reset seen cards and player cards. 
-                    player_cards.remove_card_value[c3]
-                    remaining_deck.add_card_value[c3]
-                dealer_cards.remove_card_value[c2]
-                remaining_deck.add_card_value[c2]
-            player_cards.remove_card_value[c1]
-            remaining_deck.add_card_value[c1]
+                    player_cards.remove_card_value(c3)
+                    remaining_deck.add_card_value(c3)
+                dealer_cards.remove_card_value(c2)
+                remaining_deck.add_card_value(c2)
+            player_cards.remove_card_value(c1)
+            remaining_deck.add_card_value(c1)
 
         #return new states with thier transition probabilities
         self.child.extend(new_states)
@@ -471,6 +488,8 @@ class BeliefState:
                 total = [int(card.num) + t for t in total]
         total = [t for t in total if t <= 21]
 
+        #to get sum of cardset use self.player_cards.set_sum() 
+
         if action == 'h':
             returning = []
             for value in values:
@@ -565,24 +584,28 @@ class BeliefState:
 
 
     def generate_action(self):
-        total = [0]
-        for card in self.player_cards:
-            if card.num == 'A':
-                temp = [11 + t for t in total]
-                total = [1 + t for t in total]
-                total.extend(temp)
-            elif not card.num.isdigit():
-                total = [10 + t for t in total]
-            else:
-                total = [int(card.num) + t for t in total]
-        total = [t for t in total if t <= 21]
+        # total = [0]
+        # for card in self.player_cards:
+        #     if card.num == 'A':
+        #         temp = [11 + t for t in total]
+        #         total = [1 + t for t in total]
+        #         total.extend(temp)
+        #     elif not card.num.isdigit():
+        #         total = [10 + t for t in total]
+        #     else:
+        #         total = [int(card.num) + t for t in total]
+        # total = [t for t in total if t <= 21]
 
         available = ['s']
-        for t in total:
-            if t < 20:
-                available.append('h')
-                break
-        sums = set(total)
+        # for t in total:
+        #     if t < 20:
+        #         available.append('h')
+        #         break
+        if self.player_cards.set_sum() < 21:
+            available.append('h')
+
+
+        #sums = set(total)
         # turn off double even though its like 95% implemented. 
         # if len(self.cards) == 2 and self.money >= self.bet and (9 in sums or 10 in sums or 11 in sums):
         #     available.append('d')
@@ -723,7 +746,7 @@ class DealerState:
             remaining_deck.subtract_set(self.seen_cards)
             remaining_deck.subtract_set(self.player_cards)
             remaining_deck.subtract_set(self.dealer_cards)
-            for card in list(range(2,11)+['A']):
+            for card in list(range(2,11))+['A']:
                 probability = 1 
                 probability = remaining_deck.probability_of_num[card]
                 # take a card out of seen cards
