@@ -155,11 +155,13 @@ class Game:
 			elif isinstance(player,POMDPPlayer):
 				cmd = player.get_options(self.players, self.dealer)
 				self.display.set_turn(player)
+				print("line 157 game.py" + cmd, file=sys.stderr)
 				while(True):
 					if cmd == ord('h'):
 						player.add_card(self.dealer.deal())
 						cmd = player.get_options()
-					elif cmd == ord(CMD.STAND.value):
+					elif cmd == ord(CMD.STAND.value) or cmd == 's':
+						print("line 164 game.py", file=sys.stderr)
 						break
 					elif cmd == ord(CMD.DOUBLE.value) and CMD.DOUBLE in set(player.options):
 						player.money -= player.bet
